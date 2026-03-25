@@ -5,33 +5,48 @@ Esta guía detalla el paso a paso para desplegar la página web corporativa de *
 ## Requisitos previos
 
 - Un VPS con Ubuntu (versión 20.04 o superior recomendada).
-- Acceso SSH al servidor (usuario \`root\` o usuario con privilegios \`sudo\`).
-- Un nombre de dominio apuntando a la dirección IP de tu VPS (opcional pero muy recomendado para producción y SSL).
-- Tu repositorio de GitHub listo: \`https://github.com/CMejiaVergel/voltac-energy.git\`
+- Acceso SSH al servidor (usuario `root` o usuario con privilegios `sudo`).
+- Acceso a Hostinger para gestionar los DNS de tu dominio `voltac.com.co`.
+- Tu repositorio de GitHub listo: `https://github.com/CMejiaVergel/voltac-energy.git`
 
 ---
 
-## 1. Conexión al servidor y actualización
+## 1. Configuración de DNS en Hostinger (Subdominio)
+
+Antes de conectar tu servidor y preparar el entorno, vamos a enlazar el subdominio a tu VPS:
+
+1. Ingresa a tu panel de **Hostinger** y ve al apartado de **Dominios**.
+2. Selecciona tu dominio (presuntamente `voltac.com.co`) y abre el **Editor de Zona DNS**.
+3. Añade un nuevo **Registro A** con la siguiente información:
+    - **Tipo**: `A`
+    - **Nombre**: `voltac.energy`
+    - **Apunta a**: `IP_DE_TU_VPS` (Escribe la dirección IP pública de Ubuntu).
+    - **TTL**: Déjalo por defecto (ej. 14400 o el predefinido).
+4. Dale a guardar. (Ten en cuenta que apuntar un dominio nuevo puede tardar en expandirse desde unos pocos minutos hasta 24 horas, pero normalmente es muy rápido).
+
+---
+
+## 2. Conexión al servidor y actualización
 
 Conéctate a tu servidor a través de la terminal usando SSH:
 
-\`\`\`bash
+```bash
 ssh tu_usuario@ip_de_tu_servidor
-\`\`\`
+```
 
 Una vez dentro, actualiza la lista de paquetes del sistema operativo:
 
-\`\`\`bash
+```bash
 sudo apt update && sudo apt upgrade -y
-\`\`\`
+```
 
 ---
 
-## 2. Instalación de Node.js y NPM
+## 3. Instalación de Node.js y NPM
 
 Next.js requiere Node.js. Instalaremos la versión recomendada (LTS) usando NodeSource.
 
-\`\`\`bash
+```bash
 # 1. Descargar e instalar el script de configuración de NodeSource (versión 20 LTS como ejemplo)
 curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 
@@ -41,15 +56,15 @@ sudo apt install -y nodejs
 # 3. Verificar instalación
 node -v
 npm -v
-\`\`\`
+```
 
 ---
 
-## 3. Clonar el repositorio y configurar el proyecto
+## 4. Clonar el repositorio y configurar el proyecto
 
 Vamos a descargar el código del sistema instalado en nuestro VPS mediante Git.
 
-\`\`\`bash
+```bash
 # 1. Asegúrate de tener Git instalado
 sudo apt install -y git
 
@@ -65,30 +80,30 @@ cd voltac-energy
 
 # 5. Instala las dependencias del proyecto
 npm install
-\`\`\`
+```
 
 ---
 
-## 4. Construcción (Build) de la aplicación
+## 5. Construcción (Build) de la aplicación
 
 Dado que es un proyecto de Next.js, se debe compilar el código para producción.
 
-Si utilizaste variables de entorno (como accesos a Supabase), asegúrate de crear el archivo \`.env.local\` o \`.env\` en el directorio raíz usando \`nano .env.local\` y añadiéndolas allí antes del *build*.
+Si utilizaste variables de entorno (como accesos a Supabase), asegúrate de crear el archivo `.env.local` o `.env` en el directorio raíz usando `nano .env.local` y añadiéndolas allí antes del *build*.
 
-\`\`\`bash
+```bash
 # Ejecutar compilación de Next.js
 npm run build
-\`\`\`
+```
 
-Esto creará la carpeta \`.next\` con el código optimizado.
+Esto creará la carpeta `.next` con el código optimizado.
 
 ---
 
-## 5. Mantener la aplicación viva: Instalar y configurar PM2
+## 6. Mantener la aplicación viva: Instalar y configurar PM2
 
 PM2 es un gestor de procesos que nos asegurará que Next.js se ejecute continuamente en segundo plano y se reinicie automáticamente si ocurre un error o si elVPS se reinicia.
 
-\`\`\`bash
+```bash
 # 1. Instalar PM2 de forma global
 sudo npm install -g pm2
 
@@ -101,37 +116,37 @@ pm2 save
 # 4. Configurar PM2 para ejecutarse al arrancar el servidor
 pm2 startup
 # (Ejecuta el comando que PM2 te genere e imprima en la terminal después de correr 'pm2 startup')
-\`\`\`
+```
 
-Tu aplicación Next.js ahora debe estar corriendo en \`http://localhost:3000\` de manera persistente en tu VPS.
+Tu aplicación Next.js ahora debe estar corriendo en `http://localhost:3000` de manera persistente en tu VPS.
 
 ---
 
-## 6. Configuración de Nginx (Reverse Proxy)
+## 7. Configuración de Nginx (Reverse Proxy)
 
-Dado que Next.js corre por defecto en el puerto 3000, instalaremos Nginx para interceptar el tráfico web del puerto 80 (HTTP) y 443 (HTTPS) y enviarlo al puerto 3000, además de enlazarlo a tu dominio real.
+Dado que Next.js corre por defecto en el puerto 3000, instalaremos Nginx para interceptar el tráfico web del puerto 80 (HTTP) y enviarlo al puerto 3000, además de enlazarlo a tu subdominio de Hostinger `voltac.energy.voltac.com.co`.
 
-\`\`\`bash
+```bash
 # 1. Instalar Nginx
 sudo apt install -y nginx
 
 # 2. Iniciar Nginx
 sudo systemctl start nginx
 sudo systemctl enable nginx
-\`\`\`
+```
 
-Crea un archivo de configuración para tu sitio. Cambia \`tudominio.com\` por tu dominio real.
+Crea un archivo de configuración para tu sitio e inserta la redirección del subdominio.
 
-\`\`\`bash
+```bash
 sudo nano /etc/nginx/sites-available/voltac-energy
-\`\`\`
+```
 
 Pega la siguiente configuración dentro:
 
-\`\`\`nginx
+```nginx
 server {
     listen 80;
-    server_name tudominio.com www.tudominio.com; # Cambia esto por tu dominio (o IP pública mientras pruebas)
+    server_name voltac.energy.voltac.com.co; # Redirecciona usando tu subdominio de Hostinger
 
     location / {
         proxy_pass http://localhost:3000; # Redirige el tráfico hacia el puerto de Next.js
@@ -142,11 +157,11 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
-\`\`\`
+```
 
-Guarda el archivo (\`Ctrl+O\`, \`Enter\`, \`Ctrl+X\`). Ahora actívalo enlanzádolo a la carpeta activa:
+Guarda el archivo (`Ctrl+O`, `Enter`, `Ctrl+X`). Ahora actívalo enlanzádolo a la carpeta activa:
 
-\`\`\`bash
+```bash
 # 1. Habilitar la configuración
 sudo ln -s /etc/nginx/sites-available/voltac-energy /etc/nginx/sites-enabled/
 
@@ -155,25 +170,25 @@ sudo nginx -t
 
 # 3. Reiniciar Nginx
 sudo systemctl restart nginx
-\`\`\`
+```
 
-Ahora deberías poder ver la web introduciendo tu dominio (o IP pública) en el navegador.
+Ahora deberías poder ver la web introduciendo `http://voltac.energy.voltac.com.co` en el navegador (si los DNS de Hostinger ya se propagaron completamente).
 
 ---
 
-## 7. Proteger con Certificado SSL (HTTPS) - Opcional pero recomendado
+## 8. Proteger con Certificado SSL (HTTPS) - Obligatorio para Producción
 
-Si tienes tu dominio conectado a la IP del VPS, instala el certificado gratuito de Let's Encrypt mediante Certbot.
+Para que tu sitio use conexión cifrada `https://` y mostrar la seguridad ante clientes corporativos, utiliza el certificado gratuito de Let's Encrypt mediante Certbot.
 
-\`\`\`bash
+```bash
 # 1. Instalar Certbot y su extensión para Nginx
 sudo apt install -y certbot python3-certbot-nginx
 
-# 2. Ejecutar Certbot (Y sigue las instrucciones que van apareciendo en pantalla)
-sudo certbot --nginx -d tudominio.com -d www.tudominio.com
-\`\`\`
+# 2. Ejecutar Certbot e instalar SSL solo para tu subdominio (sigue los pasos en pantalla)
+sudo certbot --nginx -d voltac.energy.voltac.com.co
+```
 
-Certbot configurará el re-direccionamiento automático de HTTP a HTTPS. De esta manera el tráfico estará encriptado.
+Certbot actualizará tu configuración de Nginx (`/etc/nginx/sites-available/voltac-energy`) para redirigir forzosamente el tráfico hacia HTTPS. Además, renueva el certificado solito cada 90 días.
 
 ---
 
