@@ -37,6 +37,8 @@ const detailedSchema = z.object({
 
 export default function CotizarPage() {
   const [activeTab, setActiveTab] = React.useState<"express" | "manual" | "detailed">("express");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [successModal, setSuccessModal] = React.useState(false);
 
   const expressForm = useForm<z.infer<typeof expressSchema>>({
     resolver: zodResolver(expressSchema),
@@ -53,22 +55,63 @@ export default function CotizarPage() {
     defaultValues: { terms: false }
   });
 
-  const onSubmitExpress = (data: z.infer<typeof expressSchema>) => {
-    console.log("Submit Express:", data);
-    alert("Simulación: Solicitud Express recibida con éxito.");
-    expressForm.reset();
+  const onSubmitExpress = async (data: z.infer<typeof expressSchema>) => {
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append("modality", "express");
+    formData.append("fullName", data.fullName);
+    formData.append("phone", data.phone);
+    formData.append("email", data.email);
+    
+    // Check if there is a file directly available (due to unstructured field `any` mapping)
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput?.files?.[0]) {
+      formData.append("file", fileInput.files[0]);
+    }
+
+    try {
+      await fetch("/api/quote", { method: "POST", body: formData });
+      expressForm.reset();
+      setSuccessModal(true);
+    } catch(e) { console.error(e); }
+    setIsSubmitting(false);
   };
 
-  const onSubmitManual = (data: z.infer<typeof manualSchema>) => {
-    console.log("Submit Manual:", data);
-    alert("Simulación: Solicitud Manual recibida con éxito.");
-    manualForm.reset();
+  const onSubmitManual = async (data: z.infer<typeof manualSchema>) => {
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append("modality", "manual");
+    formData.append("fullName", data.fullName);
+    formData.append("phone", data.phone);
+    formData.append("consumption", String(data.consumption));
+    formData.append("address", data.address);
+
+    try {
+      await fetch("/api/quote", { method: "POST", body: formData });
+      manualForm.reset();
+      setSuccessModal(true);
+    } catch(e) { console.error(e); }
+    setIsSubmitting(false);
   };
 
-  const onSubmitDetailed = (data: z.infer<typeof detailedSchema>) => {
-    console.log("Submit Detailed:", data);
-    alert("Simulación: Solicitud Detallada recibida con éxito.");
-    detailedForm.reset();
+  const onSubmitDetailed = async (data: z.infer<typeof detailedSchema>) => {
+    setIsSubmitting(true);
+    const formData = new FormData();
+    formData.append("modality", "detailed");
+    formData.append("fullName", data.fullName);
+    formData.append("phone", data.phone);
+    formData.append("installType", data.installType);
+    formData.append("location", data.location);
+    formData.append("objective", data.objective);
+    formData.append("gridType", data.gridType);
+    if (data.message) formData.append("message", data.message);
+
+    try {
+      await fetch("/api/quote", { method: "POST", body: formData });
+      detailedForm.reset();
+      setSuccessModal(true);
+    } catch(e) { console.error(e); }
+    setIsSubmitting(false);
   };
 
   return (
@@ -162,7 +205,9 @@ export default function CotizarPage() {
                   </label>
                   {expressForm.formState.errors.terms && <p className="text-destructive text-xs -mt-4 mb-4">{expressForm.formState.errors.terms.message}</p>}
                   
-                  <Button type="submit" variant="default" size="lg" className="h-14 w-full">Cotizar Ahora <ChevronRight className="ml-2 w-5 h-5"/></Button>
+                  <Button type="submit" variant="default" size="lg" className="h-14 w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Enviando..." : <><>Cotizar Ahora <ChevronRight className="ml-2 w-5 h-5"/></></>}
+                  </Button>
                  </div>
               </form>
             )}
@@ -210,7 +255,9 @@ export default function CotizarPage() {
                   </label>
                   {manualForm.formState.errors.terms && <p className="text-destructive text-xs -mt-4 mb-4">{manualForm.formState.errors.terms.message}</p>}
                   
-                  <Button type="submit" variant="default" size="lg" className="h-14 w-full">Cotizar Ahora <ChevronRight className="ml-2 w-5 h-5"/></Button>
+                  <Button type="submit" variant="default" size="lg" className="h-14 w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Enviando..." : <><>Cotizar Ahora <ChevronRight className="ml-2 w-5 h-5"/></></>}
+                  </Button>
                  </div>
                 </form>
             )}
@@ -289,7 +336,9 @@ export default function CotizarPage() {
                   </label>
                   {detailedForm.formState.errors.terms && <p className="text-destructive text-xs -mt-4 mb-4">{detailedForm.formState.errors.terms.message}</p>}
                   
-                  <Button type="submit" variant="default" size="lg" className="h-14 w-full">Enviar Requerimiento <ChevronRight className="ml-2 w-5 h-5"/></Button>
+                  <Button type="submit" variant="default" size="lg" className="h-14 w-full" disabled={isSubmitting}>
+                    {isSubmitting ? "Procesando..." : <><>Enviar Requerimiento <ChevronRight className="ml-2 w-5 h-5"/></></>}
+                  </Button>
                  </div>
                </form>
             )}
@@ -297,6 +346,23 @@ export default function CotizarPage() {
           </div>
         </div>
       </div>
+
+      {successModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-secondary/90 backdrop-blur-md">
+          <div className="bg-white p-10 md:p-14 rounded-[2rem] max-w-lg w-full text-center relative border border-border shadow-2xl animate-in slide-in-from-bottom-10 zoom-in-95 duration-500">
+            <div className="w-24 h-24 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-8">
+              <CheckCircle2 size={48} />
+            </div>
+            <h2 className="text-3xl font-black text-secondary tracking-tight mb-4">¡Solicitud Exitosa!</h2>
+            <p className="text-secondary/70 font-light text-lg mb-10 leading-relaxed">
+              Hemos recibido tu información y la almacenamos de manera segura. Un ingeniero experto de <strong>Voltac Energy</strong> estará contactándote muy pronto para enviarte la propuesta.
+            </p>
+            <Button onClick={() => setSuccessModal(false)} variant="accent" size="lg" className="w-full h-14 font-bold text-secondary text-base hover:scale-105 transition-transform">
+              Entendido, gracias
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
