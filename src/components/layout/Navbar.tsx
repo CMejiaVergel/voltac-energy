@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -48,9 +49,15 @@ export function Navbar() {
       )}
     >
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 relative z-10 font-bold text-2xl tracking-tighter">
-          <span className={cn("transition-colors duration-300", textColor)}>VOLTAC</span>
-          <span className="text-primary font-black">ENERGY</span>
+        <Link href="/" className="flex items-center relative z-10">
+          <Image 
+            src={hasDarkBg || isSolidNav ? "/logo_fondo_oscuro.png" : "/logo_fondo_claro.png"} 
+            alt="Voltac Energy Logo" 
+            width={180} 
+            height={50} 
+            className="h-10 w-auto object-contain transition-all duration-300"
+            priority
+          />
         </Link>
 
         {/* Desktop Nav */}

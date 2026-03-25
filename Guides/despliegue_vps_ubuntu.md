@@ -141,7 +141,7 @@ Crea un archivo de configuración para tu sitio e inserta la redirección del su
 sudo nano /etc/nginx/sites-available/voltac-energy
 ```
 
-Pega la siguiente configuración dentro (asegúrate de NO copiar las comillas invertidas ````nginx` del formato de este documento, solo el bloque de texto):
+Pega la siguiente configuración dentro (asegúrate de **NO copiar las comillas invertidas ````nginx`** ni el bloque superior de texto, solo el contenido interior):
 
 ```nginx
 server {
@@ -162,21 +162,20 @@ server {
 Guarda el archivo (`Ctrl+O`, `Enter`, `Ctrl+X`). Ahora actívalo enlanzádolo a la carpeta activa:
 
 ```bash
-# 1. Habilitar la configuración
-sudo ln -s /etc/nginx/sites-available/voltac-energy /etc/nginx/sites-enabled/
-
-# 2. Verificar que no haya errores de sintaxis
-sudo nginx -t
-
-# 3. Eliminar la configuración por defecto de Nginx (para evitar conflictos de puerto 80)
+# 1. Eliminar la configuración por defecto de Nginx PRIMERO para evitar conflictos con el puerto 80 y la prioridad
 sudo rm /etc/nginx/sites-enabled/default
 
-# 4. Reiniciar Nginx
+# 2. Habilitar TU configuración (usando -sf para reemplazar si hubiera algo malo enganchado previamente)
+sudo ln -sf /etc/nginx/sites-available/voltac-energy /etc/nginx/sites-enabled/
+
+# 3. Verificar RIGUROSAMENTE que no haya errores de sintaxis o de formato (NO TE SALTES ESTE PASO)
+sudo nginx -t
+
+# 4. Una vez la terminal te indique "syntax is ok" y "test is successful", Reinicia Nginx
 sudo systemctl restart nginx
 ```
 
-> **⚠️ Solución de Problemas (Address already in use)**: Si al reiniciar Nginx te aparece un error indicando `bind() to 0.0.0.0:80 failed (98: Address already in use)`, significa que hay otro programa ocupando el puerto, usualmente `apache2` (que viene preinstalado a veces) o un proceso trabado de Nginx. 
-> Ejecuta `sudo fuser -k 80/tcp` para matar cualquier proceso usando ese puerto. Si es Apache, detenlo permanentemente con: `sudo systemctl stop apache2 && sudo systemctl disable apache2`. Luego, vuelve a intentar reiniciar Nginx.
+> **⚠️ Atención a errores `ERR_CONNECTION_REFUSED` o pantallas vacías:** Si tu página arroja que "rechazó la conexión" tras ejecutar esto, significa que **Nginx se apagó porque tu archivo falló la prueba de sintaxis** (o dejaste el bloque default activo). Repite `sudo nginx -t` para ver en qué línea falló tu archivo `voltac-energy`, corrige el archivo con `nano` y vuelve a intentarlo. Nginx NUNCA levantará si la prueba de sintaxis indica [emerg]. Si ves "Address already in use", mata el proceso ejecutando `sudo fuser -k 80/tcp` o deteniendo Apache (`sudo systemctl stop apache2`).
 
 Ahora deberías poder ver la web introduciendo `http://energy.voltac.com.co` en el navegador (si los DNS de Hostinger ya se propagaron completamente).
 

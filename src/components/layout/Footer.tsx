@@ -1,5 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Mail, Phone } from "lucide-react";
 
 const InstagramIcon = () => (
@@ -21,9 +22,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 bg-secondary pb-12">
           {/* Brand */}
           <div className="max-w-xs space-y-4">
-            <Link href="/" className="inline-block font-black tracking-tighter text-2xl">
-              <span className="text-white">VOLTAC</span>
-              <span className="text-primary">ENERGY</span>
+            <Link href="/" className="inline-block relative">
+              <Image 
+                src="/logo_fondo_oscuro.png" 
+                alt="Voltac Energy Logo" 
+                width={180} 
+                height={50} 
+                className="h-10 w-auto object-contain"
+              />
             </Link>
             <p className="text-white/60 leading-relaxed font-light">
               Diseñamos, implementamos y operamos soluciones fotovoltaicas rentables que impulsan la transición energética en Colombia.
