@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { LayoutDashboard, Users, FolderKanban, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, Users, FolderKanban, Settings, LogOut, BarChart3, Eye } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { label: "Dashboard", icon: <LayoutDashboard size={20}/>, href: "/admin" },
     { label: "Leads (CRM)", icon: <Users size={20}/>, href: "/admin/leads" },
     { label: "Proyectos", icon: <FolderKanban size={20}/>, href: "/admin/proyectos" },
+    { label: "Analytics", icon: <BarChart3 size={20}/>, href: "/admin/analytics" },
+    { label: "Preview", icon: <Eye size={20}/>, href: "/admin/preview" },
     { label: "Configuración", icon: <Settings size={20}/>, href: "/admin/configuracion" },
   ];
 
@@ -46,7 +48,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           {!collapsed ? (
             <Link href="/admin" className="block w-full">
               <Image src="/logo_horizontal_fondo_oscuro.png" alt="Voltac Admin" width={150} height={40} className="w-auto h-8 object-contain" priority />
-              <span className="text-primary block text-xs tracking-widest font-medium uppercase mt-2">Admin Panel</span>
+              <span className="text-primary block text-[10px] tracking-[0.2em] font-bold mt-2" style={{ fontFamily: "Akira Expanded, sans-serif" }}>ADMIN PANEL</span>
             </Link>
           ) : (
             <Link href="/admin" className="block mx-auto">
@@ -60,6 +62,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Link
               key={item.href}
               href={item.href}
+              onClick={(e) => {
+                if (pathname === item.href) {
+                  e.preventDefault();
+                  setCollapsed(!collapsed);
+                }
+              }}
               title={collapsed ? item.label : undefined}
               className={cn(
                 "flex items-center rounded-xl transition-colors font-medium text-sm",
@@ -74,13 +82,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         <div className="p-4 border-t border-white/10 space-y-2">
-          <button 
-            onClick={() => setCollapsed(!collapsed)}
-            className="flex items-center justify-center bg-white/5 hover:bg-white/10 text-white/50 hover:text-white transition-colors w-full rounded-xl py-2 font-medium"
-            title={collapsed ? "Expandir" : "Contraer"}
-          >
-            {collapsed ? "»" : "« Contraer"}
-          </button>
           <button 
             onClick={() => {
               localStorage.removeItem("voltac_admin_auth");

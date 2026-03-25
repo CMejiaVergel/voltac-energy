@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LegalModals } from "@/components/layout/LegalModals";
+import { CookieConsent } from "@/components/layout/CookieConsent";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -32,6 +33,7 @@ export default function RootLayout({
         </main>
         <Footer />
         <LegalModals />
+        <CookieConsent />
       </body>
     </html>
   );

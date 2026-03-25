@@ -45,7 +45,7 @@ export function LegalModals() {
             <h2 className="text-3xl font-black text-secondary mb-8 tracking-tight">Política de Privacidad Integral</h2>
             <p><strong>De conformidad con la Ley 1581 de 2012 y el Decreto 1377 de 2013 de la República de Colombia.</strong></p>
             <p>Voltac Energy recolecta, almacena, usa y trata los datos personales proporcionados por nuestros clientes y usuarios con la finalidad exclusiva de brindar servicios profesionales de ingeniería, consultorías preliminares y cotizaciones técnicas, así como el envío intermitente de información técnica, comercial, ofertas exclusivas o publicidad relacionada con nuestros servicios solares.</p>
-            <p>Usted, como titular de los datos, tiene derecho a conocer, actualizar y rectificar permanentemente su información personal, así como a solicitar la eliminación irreversible de nuestro sistema en cualquier momento comunicándose con nosotros vía correo a hola@energy.voltac.com.co.</p>
+            <p>Usted, como titular de los datos, tiene derecho a conocer, actualizar y rectificar permanentemente su información personal, así como a solicitar la eliminación irreversible de nuestro sistema en cualquier momento comunicándose con nosotros vía correo a info@voltac.com.co.</p>
             <p>Conservaremos sus datos bajo estrictas medidas de seguridad informática, previniendo su desvío, alteración o acceso no autorizado. Voltac Energy no comercializa datos de sus usuarios con entidades de terceros ajenos a la prestación integral de nuestros servicios, asegurando mantenernos siempre dentro de un marco de absoluta ética y legalidad.</p>
           </div>
         )}
