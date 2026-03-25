@@ -101,12 +101,12 @@ export function Footer() {
         <div className="pt-8 mt-4 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-white/40 font-light">
           <p>© {new Date().getFullYear()} Voltac Energy. Todos los derechos reservados.</p>
           <div className="flex gap-4">
-            <Link href="/politica-privacidad" className="hover:text-white transition-colors">
+            <a href="#politica-privacidad" className="hover:text-white transition-colors">
               Política de Privacidad (Ley 1581 de 2012)
-            </Link>
-            <Link href="/terminos" className="hover:text-white transition-colors">
+            </a>
+            <a href="#terminos-condiciones" className="hover:text-white transition-colors">
               Términos y Condiciones
-            </Link>
+            </a>
           </div>
         </div>
       </div>

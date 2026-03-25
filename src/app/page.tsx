@@ -196,7 +196,7 @@ export default function Home() {
             Convierte a tu empresa en un generador de energía limpia. Certifica tu impacto y aumenta tu rentabilidad.
           </p>
           <Link href="/cotizar">
-            <Button variant="accent" size="lg" className="h-16 px-10 text-lg hover:scale-105 transition-transform">
+            <Button variant="accent" size="lg" className="w-full sm:w-auto h-auto py-5 px-6 sm:px-10 text-base sm:text-lg whitespace-normal leading-tight text-center hover:scale-105 transition-transform mt-4">
               Empieza tu transformación hoy
             </Button>
           </Link>

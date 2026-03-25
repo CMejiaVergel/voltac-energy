@@ -23,6 +23,10 @@ export function Navbar() {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
+
   React.useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);

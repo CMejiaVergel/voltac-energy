@@ -60,8 +60,8 @@ export default function ServiciosPage() {
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {SERVICES_DATA.map((service, i) => (
-            <div key={i} className="bg-white p-8 rounded-2xl border border-border shadow-sm hover:shadow-lg hover:border-primary/20 transition-all group flex flex-col h-full">
-              <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+            <div key={i} className="group p-8 rounded-2xl bg-muted border border-border/50 hover:bg-white hover:shadow-xl hover:border-primary/20 transition-all cursor-pointer flex flex-col h-full">
+              <div className="w-14 h-14 rounded-xl bg-white border border-border/50 text-primary flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors shrink-0">
                 {service.icon}
               </div>
               <h3 className="text-xl font-bold text-secondary mb-3">{service.category}</h3>

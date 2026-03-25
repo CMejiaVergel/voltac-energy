@@ -112,8 +112,8 @@ export default function ContactoPage() {
                  <div className="pt-2">
                   <label className="flex items-start gap-4 cursor-pointer mb-8">
                     <input type="checkbox" className="mt-1 w-5 h-5 rounded border-white/20 bg-transparent text-primary focus:ring-primary/20 accent-primary" />
-                    <span className="text-xs text-white/40 leading-relaxed font-light block">
-                      Autorizo el tratamiento de mis datos personales de acuerdo con la <a href="#" className="underline hover:text-white">Política de Privacidad Integral de la Ley 1581 de 2012 de Colombia</a>.
+                    <span className="text-xs text-white/40 leading-relaxed font-light block mt-1">
+                      Declaro que he leído y acepto los <a href="#terminos-condiciones" className="underline hover:text-white">Términos y Condiciones</a>, y autorizo explícitamente el tratamiento de mis datos personales y envíos comerciales de acuerdo con la <a href="#politica-privacidad" className="underline hover:text-white">Política de Privacidad (Ley 1581 de 2012)</a>.
                     </span>
                   </label>
                   
