@@ -43,7 +43,7 @@ export const metadata = {
 
 export default function ServiciosPage() {
   return (
-    <div className="pt-24 pb-20 bg-muted min-h-screen">
+    <div className="pt-24 pb-20 bg-white min-h-screen">
       <div className="container mx-auto px-4 md:px-6">
         
         <header className="max-w-3xl mb-16 space-y-6">

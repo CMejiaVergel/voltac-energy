@@ -28,7 +28,7 @@ export default function NosotrosPage() {
                  <span className="text-sm font-semibold uppercase tracking-wider text-secondary/60">Capital Colombiano</span>
                </div>
                <div>
-                 <span className="block text-4xl font-black text-primary tabular-nums">9+</span>
+                 <span className="block text-4xl font-black text-primary tabular-nums">3+</span>
                  <span className="text-sm font-semibold uppercase tracking-wider text-secondary/60">Años de Ingeniería</span>
                </div>
             </div>

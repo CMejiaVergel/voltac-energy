@@ -28,22 +28,26 @@ export default function ContactoPage() {
                   <li className="flex items-start gap-4">
                     <div className="p-3 bg-white rounded-xl text-primary shadow-sm mt-1 border border-border"><MapPin size={24}/></div>
                     <div>
-                      <p className="font-bold text-secondary mb-1">Sede Principal</p>
-                      <p className="text-secondary/60 font-medium">Cartagena, Bolívar<br/>Cobertura en toda Colombia</p>
+                      <p className="font-bold text-secondary mb-1">Presencia Nacional</p>
+                      <p className="text-secondary/60 font-medium">Sedes: Cartagena, Sincelejo, Barranquilla, Medellín y Montería.</p>
                     </div>
                   </li>
                   <li className="flex items-center gap-4">
                     <div className="p-3 bg-white rounded-xl text-primary shadow-sm border border-border"><Phone size={24}/></div>
                     <div>
                       <p className="font-bold text-secondary mb-1">Teléfono Fijo / Móvil</p>
-                      <p className="text-secondary/60 font-medium">+57 300 000 0000</p>
+                      <p className="text-secondary/60 font-medium">+57 313 625 3584</p>
                     </div>
                   </li>
-                  <li className="flex items-center gap-4">
-                    <div className="p-3 bg-white rounded-xl text-primary shadow-sm border border-border"><Mail size={24}/></div>
+                  <li className="flex items-start gap-4">
+                    <div className="p-3 bg-white rounded-xl text-primary shadow-sm border border-border mt-1"><Mail size={24}/></div>
                     <div>
-                      <p className="font-bold text-secondary mb-1">Correos Institucionales</p>
-                      <p className="text-secondary/60 font-medium break-all">hola@energy.voltac.com.co</p>
+                      <p className="font-bold text-secondary mb-1">Correos de Contacto</p>
+                      <div className="text-secondary/60 font-medium break-all flex flex-col pt-1 gap-1">
+                        <span>sales@voltac.com.co</span>
+                        <span>projects@voltac.com.co</span>
+                        <span>operations@voltac.com.co</span>
+                      </div>
                     </div>
                   </li>
                   <li className="flex items-center gap-4">
@@ -57,7 +61,7 @@ export default function ContactoPage() {
               </div>
               
               <div className="pt-6 border-t border-border">
-                <a href="#" className="flex w-full items-center justify-center gap-3 bg-[#25D366]/10 text-[#075E54] hover:bg-[#25D366]/20 font-bold p-4 rounded-2xl transition-colors">
+                <a href="https://wa.me/573136253584" target="_blank" rel="noopener noreferrer" className="flex w-full items-center justify-center gap-3 bg-[#25D366]/10 text-[#075E54] hover:bg-[#25D366]/20 font-bold p-4 rounded-2xl transition-colors">
                   <MessageCircle size={24} />
                   Contactar por WhatsApp
                 </a>

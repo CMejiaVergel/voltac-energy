@@ -43,7 +43,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-secondary/40 to-secondary" />
         </div>
 
-        <div className="container mx-auto px-4 md:px-6 relative z-10 pt-20">
+        <div className="container mx-auto px-6 md:px-12 lg:px-32 relative z-10 pt-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -189,7 +189,7 @@ export default function Home() {
       <section className="py-32 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)", backgroundSize: "40px 40px" }} />
         <div className="container mx-auto px-4 md:px-6 relative z-10 text-center text-white max-w-3xl">
-          <h2 className="text-5xl md:text-6xl font-black tracking-tight mb-8">
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black tracking-tight mb-8 break-words text-balance">
             Crecer hoy es hacerlo responsablemente.
           </h2>
           <p className="text-xl md:text-2xl font-light mb-12 text-white/90">

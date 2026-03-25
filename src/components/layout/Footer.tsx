@@ -35,13 +35,13 @@ export function Footer() {
               Diseñamos, implementamos y operamos soluciones fotovoltaicas rentables que impulsan la transición energética en Colombia.
             </p>
             <div className="flex gap-4 pt-2">
-              <a href="#" aria-label="Perfil de Instagram de Voltac Energy" className="p-2 bg-primary/10 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="https://www.instagram.com/voltacenergy/" target="_blank" rel="noopener noreferrer" aria-label="Perfil de Instagram de Voltac Energy" className="p-2 bg-primary/10 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <InstagramIcon />
               </a>
-              <a href="#" aria-label="Perfil de LinkedIn de Voltac Energy" className="p-2 bg-primary/10 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="http://linkedin.com/company/voltac-energy" target="_blank" rel="noopener noreferrer" aria-label="Perfil de LinkedIn de Voltac Energy" className="p-2 bg-primary/10 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <LinkedinIcon />
               </a>
-              <a href="#" aria-label="Página de Facebook de Voltac Energy" className="p-2 bg-primary/10 rounded-full hover:bg-primary hover:text-white transition-colors">
+              <a href="https://www.facebook.com/voltacenergy/" target="_blank" rel="noopener noreferrer" aria-label="Página de Facebook de Voltac Energy" className="p-2 bg-primary/10 rounded-full hover:bg-primary hover:text-white transition-colors">
                 <FacebookIcon />
               </a>
             </div>
@@ -66,15 +66,19 @@ export function Footer() {
             <ul className="space-y-4 font-light text-white/60">
               <li className="flex items-start gap-3">
                 <MapPin size={18} className="text-primary shrink-0 mt-0.5" />
-                <span>Cartagena, Colombia.<br/>Cobertura Nacional</span>
+                <span>Sedes: Cartagena, Sincelejo,<br/>Barranquilla, Medellín y Montería</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone size={18} className="text-primary shrink-0" />
-                <span>+57 (300) 123 4567</span>
+                <span>+57 313 625 3584</span>
               </li>
-              <li className="flex items-center gap-3">
-                <Mail size={18} className="text-primary shrink-0" />
-                <span>hola@energy.voltac.com.co</span>
+              <li className="flex items-start gap-3">
+                <Mail size={18} className="text-primary shrink-0 mt-0.5" />
+                <span className="flex flex-col gap-1">
+                  <span>sales@voltac.com.co</span>
+                  <span>projects@voltac.com.co</span>
+                  <span>operations@voltac.com.co</span>
+                </span>
               </li>
             </ul>
           </div>
