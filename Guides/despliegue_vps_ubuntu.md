@@ -19,7 +19,7 @@ Antes de conectar tu servidor y preparar el entorno, vamos a enlazar el subdomin
 2. Selecciona tu dominio (presuntamente `voltac.com.co`) y abre el **Editor de Zona DNS**.
 3. Añade un nuevo **Registro A** con la siguiente información:
     - **Tipo**: `A`
-    - **Nombre**: `voltac.energy`
+    - **Nombre**: `energy`
     - **Apunta a**: `IP_DE_TU_VPS` (Escribe la dirección IP pública de Ubuntu).
     - **TTL**: Déjalo por defecto (ej. 14400 o el predefinido).
 4. Dale a guardar. (Ten en cuenta que apuntar un dominio nuevo puede tardar en expandirse desde unos pocos minutos hasta 24 horas, pero normalmente es muy rápido).
@@ -124,7 +124,7 @@ Tu aplicación Next.js ahora debe estar corriendo en `http://localhost:3000` de 
 
 ## 7. Configuración de Nginx (Reverse Proxy)
 
-Dado que Next.js corre por defecto en el puerto 3000, instalaremos Nginx para interceptar el tráfico web del puerto 80 (HTTP) y enviarlo al puerto 3000, además de enlazarlo a tu subdominio de Hostinger `voltac.energy.voltac.com.co`.
+Dado que Next.js corre por defecto en el puerto 3000, instalaremos Nginx para interceptar el tráfico web del puerto 80 (HTTP) y enviarlo al puerto 3000, además de enlazarlo a tu subdominio de Hostinger `energy.voltac.com.co`.
 
 ```bash
 # 1. Instalar Nginx
@@ -141,12 +141,12 @@ Crea un archivo de configuración para tu sitio e inserta la redirección del su
 sudo nano /etc/nginx/sites-available/voltac-energy
 ```
 
-Pega la siguiente configuración dentro:
+Pega la siguiente configuración dentro (asegúrate de NO copiar las comillas invertidas ````nginx` del formato de este documento, solo el bloque de texto):
 
 ```nginx
 server {
     listen 80;
-    server_name voltac.energy.voltac.com.co; # Redirecciona usando tu subdominio de Hostinger
+    server_name energy.voltac.com.co; # Redirecciona usando tu subdominio de Hostinger
 
     location / {
         proxy_pass http://localhost:3000; # Redirige el tráfico hacia el puerto de Next.js
@@ -168,11 +168,17 @@ sudo ln -s /etc/nginx/sites-available/voltac-energy /etc/nginx/sites-enabled/
 # 2. Verificar que no haya errores de sintaxis
 sudo nginx -t
 
-# 3. Reiniciar Nginx
+# 3. Eliminar la configuración por defecto de Nginx (para evitar conflictos de puerto 80)
+sudo rm /etc/nginx/sites-enabled/default
+
+# 4. Reiniciar Nginx
 sudo systemctl restart nginx
 ```
 
-Ahora deberías poder ver la web introduciendo `http://voltac.energy.voltac.com.co` en el navegador (si los DNS de Hostinger ya se propagaron completamente).
+> **⚠️ Solución de Problemas (Address already in use)**: Si al reiniciar Nginx te aparece un error indicando `bind() to 0.0.0.0:80 failed (98: Address already in use)`, significa que hay otro programa ocupando el puerto, usualmente `apache2` (que viene preinstalado a veces) o un proceso trabado de Nginx. 
+> Ejecuta `sudo fuser -k 80/tcp` para matar cualquier proceso usando ese puerto. Si es Apache, detenlo permanentemente con: `sudo systemctl stop apache2 && sudo systemctl disable apache2`. Luego, vuelve a intentar reiniciar Nginx.
+
+Ahora deberías poder ver la web introduciendo `http://energy.voltac.com.co` en el navegador (si los DNS de Hostinger ya se propagaron completamente).
 
 ---
 
@@ -185,7 +191,7 @@ Para que tu sitio use conexión cifrada `https://` y mostrar la seguridad ante c
 sudo apt install -y certbot python3-certbot-nginx
 
 # 2. Ejecutar Certbot e instalar SSL solo para tu subdominio (sigue los pasos en pantalla)
-sudo certbot --nginx -d voltac.energy.voltac.com.co
+sudo certbot --nginx -d energy.voltac.com.co
 ```
 
 Certbot actualizará tu configuración de Nginx (`/etc/nginx/sites-available/voltac-energy`) para redirigir forzosamente el tráfico hacia HTTPS. Además, renueva el certificado solito cada 90 días.
