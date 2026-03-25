@@ -1,0 +1,305 @@
+??? Next.js 16.2.1 (Turbopack)
+
+  Creating an optimized production build ...
+node.exe : Error: Can't 
+resolve 
+'tailwindcss-animate' in 'C:\
+Users\mejia\.gemini\antigravi
+ty\scratch\voltac-energy\src\
+app'
+At C:\Program 
+Files\nodejs\npx.ps1:29 
+char:3
++   & $NODE_EXE $NPX_CLI_JS 
+$args
++   
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Error:   
+  Can't re...energy\src\ap   
+ p':String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+    [2m[at 
+finishWithoutResolve (C:\User
+s\mejia\.gemini\antigravity\s
+cratch\voltac-energy\node_mod
+ules\enhanced-resolve\lib\Res
+olver.js:587:18)][0m
+    [2m[at C:\Users\mejia\.g
+emini\antigravity\scratch\vol
+tac-energy\node_modules\enhan
+ced-resolve\lib\Resolver.js:6
+79:14][0m
+    [2m[at C:\Users\mejia\.g
+emini\antigravity\scratch\vol
+tac-energy\node_modules\enhan
+ced-resolve\lib\Resolver.js:7
+40:5][0m
+    [2m[at eval (eval at 
+create (C:\Users\mejia\.gemin
+i\antigravity\scratch\voltac-
+energy\node_modules\tapable\l
+ib\HookCodeFactory.js:31:10),
+ <anonymous>:15:1)][0m
+    [2m[at C:\Users\mejia\.g
+emini\antigravity\scratch\vol
+tac-energy\node_modules\enhan
+ced-resolve\lib\Resolver.js:7
+40:5][0m
+    [2m[at eval (eval at 
+create (C:\Users\mejia\.gemin
+i\antigravity\scratch\voltac-
+energy\node_modules\tapable\l
+ib\HookCodeFactory.js:31:10),
+ <anonymous>:27:1)][0m
+    [2m[at C:\Users\mejia\.g
+emini\antigravity\scratch\vol
+tac-energy\node_modules\enhan
+ced-resolve\lib\DescriptionFi
+lePlugin.js:89:43][0m
+    [2m[at C:\Users\mejia\.g
+emini\antigravity\scratch\vol
+tac-energy\node_modules\enhan
+ced-resolve\lib\Resolver.js:7
+40:5][0m
+    [2m[at eval (eval at 
+create (C:\Users\mejia\.gemin
+i\antigravity\scratch\voltac-
+energy\node_modules\tapable\l
+ib\HookCodeFactory.js:31:10),
+ <anonymous>:15:1)][0m
+    [2m[at C:\Users\mejia\.g
+emini\antigravity\scratch\vol
+tac-energy\node_modules\enhan
+ced-resolve\lib\Resolver.js:7
+40:5][0m {
+  details: "resolve 
+'tailwindcss-animate' in 'C:\
+\Users\\mejia\\.gemini\\antig
+ravity\\scratch\\voltac-energ
+y\\src\\app'\n" +
+    '  Parsed request is a 
+module\n' +
+    '  using description 
+file: C:\\Users\\mejia\\.gemi
+ni\\antigravity\\scratch\\vol
+tac-energy\\package.json 
+(relative path: 
+./src/app)\n' +
+    '    resolve as 
+module\n' +
+    "      C:\\Users\\mejia\\
+.gemini\\antigravity\\scratch
+\\voltac-energy\\src\\app\\no
+de_modules doesn't exist or 
+is not a directory\n" +
+    "      C:\\Users\\mejia\\
+.gemini\\antigravity\\scratch
+\\voltac-energy\\src\\node_mo
+dules doesn't exist or is 
+not a directory\n" +
+    '      looking for 
+modules in C:\\Users\\mejia\\
+.gemini\\antigravity\\scratch
+\\voltac-energy\\node_modules
+\n' +
+    '        single file 
+module\n' +
+    '          using 
+description file: C:\\Users\\
+mejia\\.gemini\\antigravity\\
+scratch\\voltac-energy\\packa
+ge.json (relative path: ./nod
+e_modules/tailwindcss-animate
+)\n' +
+    '            no 
+extension\n' +
+    "              C:\\Users\
+\mejia\\.gemini\\antigravity\
+\scratch\\voltac-energy\\node
+_modules\\tailwindcss-animate
+ doesn't exist\n" +
+    '            .js\n' +
+    "              C:\\Users\
+\mejia\\.gemini\\antigravity\
+\scratch\\voltac-energy\\node
+_modules\\tailwindcss-animate
+.js doesn't exist\n" +
+    '            .json\n' +
+    "              C:\\Users\
+\mejia\\.gemini\\antigravity\
+\scratch\\voltac-energy\\node
+_modules\\tailwindcss-animate
+.json doesn't exist\n" +
+    '            .node\n' +
+    "              C:\\Users\
+\mejia\\.gemini\\antigravity\
+\scratch\\voltac-energy\\node
+_modules\\tailwindcss-animate
+.node doesn't exist\n" +
+    '            .ts\n' +
+    "              C:\\Users\
+\mejia\\.gemini\\antigravity\
+\scratch\\voltac-energy\\node
+_modules\\tailwindcss-animate
+.ts doesn't exist\n" +
+    "        C:\\Users\\mejia
+\\.gemini\\antigravity\\scrat
+ch\\voltac-energy\\node_modul
+es\\tailwindcss-animate 
+doesn't exist\n" +
+    "      C:\\Users\\mejia\\
+.gemini\\antigravity\\scratch
+\\node_modules doesn't exist 
+or is not a directory\n" +
+    "      C:\\Users\\mejia\\
+.gemini\\antigravity\\node_mo
+dules doesn't exist or is 
+not a directory\n" +
+    "      C:\\Users\\mejia\\
+.gemini\\node_modules 
+doesn't exist or is not a 
+directory\n" +
+    "      C:\\Users\\mejia\\
+node_modules doesn't exist 
+or is not a directory\n" +
+    "      
+C:\\Users\\node_modules 
+doesn't exist or is not a 
+directory\n" +
+    "      C:\\node_modules 
+doesn't exist or is not a 
+directory"
+}
+
+> Build error occurred
+Error: Turbopack build 
+failed with 2 errors:
+./src/app/globals.css
+Error evaluating Node.js code
+CssSyntaxError: tailwindcss: 
+C:\Users\mejia\.gemini\antigr
+avity\scratch\voltac-energy\s
+rc\app\globals.css:1:1: 
+Can't resolve 
+'tailwindcss-animate' in 'C:\
+Users\mejia\.gemini\antigravi
+ty\scratch\voltac-energy\src\
+app'
+    at Input.error (node_modu
+les/postcss/lib/input.js:135:
+16) [C:\Users\mejia\.gemini\a
+ntigravity\scratch\voltac-ene
+rgy\.next\build\chunks\node_m
+odules_13sb.px._.js:4651:22]
+    at error (node_modules/po
+stcss/lib/node.js:146:32) [C:
+\Users\mejia\.gemini\antigrav
+ity\scratch\voltac-energy\.ne
+xt\build\chunks\node_modules_
+13sb.px._.js:928:38]
+    [at Object.Once (C:\Users
+\mejia\.gemini\antigravity\sc
+ratch\voltac-energy\node_modu
+les\@tailwindcss\postcss\dist
+\index.js:10:6913)]
+    at async 
+LazyResult.runAsync (node_mod
+ules/postcss/lib/lazy-result.
+js:293:11) [C:\Users\mejia\.g
+emini\antigravity\scratch\vol
+tac-energy\.next\build\chunks
+\node_modules_13sb.px._.js:62
+14:21]
+    at async transform (turbo
+pack:///[turbopack-node]/tran
+sforms/postcss.ts:70:34) [C:\
+Users\mejia\.gemini\antigravi
+ty\scratch\voltac-energy\.nex
+t\build\chunks\[root-of-the-s
+erver]__0d-m0h0._.js:146:36]
+    at async run (turbopack:/
+//[turbopack-node]/child_proc
+ess/evaluate.ts:89:23) [C:\Us
+ers\mejia\.gemini\antigravity
+\scratch\voltac-energy\.next\
+build\chunks\[root-of-the-ser
+ver]__0ubbtyl._.js:443:31]
+
+Import trace:
+  Client Component Browser:
+    ./src/app/globals.css 
+[Client Component Browser]
+    ./src/app/layout.tsx 
+[Server Component]
+
+
+./src/app/servicios/page.tsx:
+2:1
+Export SunMode doesn't exist 
+in target module
+  [90m1 |[0m ... 
+[36mas[0m [33mReact[0m 
+[36mfrom[0m 
+[32m"react"[0m;
+[31m[1m>[0m [90m2 |[0m 
+... [33mArrowRight[0m, 
+[33mActivity[0m, 
+[33mZap[0m, 
+[33mCheckCircle2[0m, 
+[33mBattery[0m, 
+[33mCpu[0m, 
+[33mBarChart3[0m, 
+[33mSunMode[0m } 
+[36mfrom[0m 
+[32m"lucid...[0m
+  [90m  |[0m    [31m[1m^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^[0m
+  [90m3 |[0m 
+...[33mink[0m 
+[36mfrom[0m 
+[32m"next/link"[0m;
+  [90m4 |[0m ... 
+[33mButton[0m } 
+[36mfrom[0m [32m"@/compone
+nts/ui/button"[0m;
+  [90m5 |[0m ...
+
+The export SunMode was not 
+found in module [project]/nod
+e_modules/lucide-react/dist/e
+sm/lucide-react.js [app-rsc] 
+(ecmascript).
+Did you mean to import 
+SunMoon?
+All exports of the module 
+are statically known (It 
+doesn't have dynamic 
+exports). So it's known 
+statically that the 
+requested export doesn't 
+exist.
+
+
+    at async transform (turbo
+pack:///[turbopack-node]/tran
+sforms/postcss.ts:70:34) [C:\
+Users\mejia\.gemini\antigravi
+ty\scratch\voltac-energy\.nex
+t\build\chunks\[root-of-the-s
+erver]__0d-m0h0._.js:146:36])
+    at async run (turbopack:/
+//[turbopack-node]/child_proc
+ess/evaluate.ts:89:23) [C:\Us
+ers\mejia\.gemini\antigravity
+\scratch\voltac-energy\.next\
+build\chunks\[root-of-the-ser
+ver]__0ubbtyl._.js:443:31])
+    at <unknown> (./src/app/s
+ervicios/page.tsx:2:1)
