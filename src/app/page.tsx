@@ -33,7 +33,7 @@ export default function Home() {
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="/Ejemplo%201.jpeg"
+            src="/fondo_hero.png"
             alt="Instalación de paneles solares Voltac"
             fill
             className="object-cover object-center"

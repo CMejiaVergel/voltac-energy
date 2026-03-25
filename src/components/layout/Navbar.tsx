@@ -51,7 +51,7 @@ export function Navbar() {
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
         <Link href="/" className="flex items-center relative z-10">
           <Image 
-            src={hasDarkBg || isSolidNav ? "/logo_fondo_oscuro.png" : "/logo_fondo_claro.png"} 
+            src={hasDarkBg || isSolidNav ? "/logo_horizontal_fondo_oscuro.png" : "/logo_horizontal_fondo_claro.png"} 
             alt="Voltac Energy Logo" 
             width={180} 
             height={50} 
