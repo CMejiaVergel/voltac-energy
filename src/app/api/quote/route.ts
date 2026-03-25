@@ -3,6 +3,7 @@ import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
+import { revalidatePath } from 'next/cache';
 
 let db: Database | null = null;
 
@@ -76,6 +77,8 @@ export async function POST(req: Request) {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [modality, fullName, phone, email || null, consumption || null, address || null, installType || null, location || null, objective || null, gridType || null, message || null, relativeFilePath]
     );
+
+    revalidatePath('/admin/leads');
 
     return NextResponse.json({ success: true });
   } catch (error) {
