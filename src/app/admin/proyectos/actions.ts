@@ -51,12 +51,12 @@ export async function createProject(formData: FormData) {
     if (file && file.size > 0) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
-      const uploadDir = join(process.cwd(), "public", "uploads", "projects");
+      const uploadDir = join(process.cwd(), "uploads", "projects");
       await mkdir(uploadDir, { recursive: true });
       const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
       const uniqueName = Date.now() + "-" + safeName;
       await writeFile(join(uploadDir, uniqueName), buffer);
-      imageUrl = "/uploads/projects/" + uniqueName;
+      imageUrl = "/api/uploads/projects/" + uniqueName;
     }
 
     // Calcular formulas automáticas
