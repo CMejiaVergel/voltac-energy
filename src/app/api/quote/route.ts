@@ -1,40 +1,8 @@
 import { NextResponse } from 'next/server';
-import sqlite3 from 'sqlite3';
-import { open, Database } from 'sqlite';
+import { getDB } from '@/lib/db';
 import { writeFile, mkdir } from 'fs/promises';
 import { join } from 'path';
 import { revalidatePath } from 'next/cache';
-
-let db: Database | null = null;
-
-async function getDB() {
-  if (!db) {
-    db = await open({
-      filename: join(process.cwd(), 'voltac.db'),
-      driver: sqlite3.Database
-    });
-    
-    await db.exec(`
-      CREATE TABLE IF NOT EXISTS quotes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        modality TEXT NOT NULL,
-        fullName TEXT NOT NULL,
-        phone TEXT NOT NULL,
-        email TEXT,
-        consumption REAL,
-        address TEXT,
-        installType TEXT,
-        location TEXT,
-        objective TEXT,
-        gridType TEXT,
-        message TEXT,
-        filePath TEXT,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-  }
-  return db;
-}
 
 export async function POST(req: Request) {
   try {
@@ -43,7 +11,6 @@ export async function POST(req: Request) {
     const fullName = formData.get('fullName') as string;
     const phone = formData.get('phone') as string;
     
-    // Modality specific fields
     const email = formData.get('email') as string | null;
     const consumption = formData.get('consumption') ? parseFloat(formData.get('consumption') as string) : null;
     const address = formData.get('address') as string | null;
@@ -72,14 +39,19 @@ export async function POST(req: Request) {
     }
 
     const database = await getDB();
+    
+    // Business rule: Detallada gets priority 'Alta'
+    const priority = modality === 'detailed' ? 'Alta' : 'Media';
+    
     await database.run(
-      `INSERT INTO quotes (modality, fullName, phone, email, consumption, address, installType, location, objective, gridType, message, filePath)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [modality, fullName, phone, email || null, consumption || null, address || null, installType || null, location || null, objective || null, gridType || null, message || null, relativeFilePath]
+      `INSERT INTO quotes (
+        modality, fullName, phone, email, consumption, address, installType, 
+        location, objective, gridType, message, filePath, priority, source
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Web')`,
+      [modality, fullName, phone, email || null, consumption || null, address || null, installType || null, location || null, objective || null, gridType || null, message || null, relativeFilePath, priority]
     );
 
     revalidatePath('/admin/leads');
-
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('API Error:', error);
