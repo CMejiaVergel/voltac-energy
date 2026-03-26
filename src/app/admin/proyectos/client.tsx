@@ -134,11 +134,16 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
-    const fd = new FormData(e.currentTarget);
-    const res = await createProject(fd);
-    if (!res.success) alert(res.error);
-    else onClose();
-    setIsSubmitting(false);
+    try {
+      const fd = new FormData(e.currentTarget);
+      const res = await createProject(fd);
+      if (!res.success) alert(res.error);
+      else onClose();
+    } catch (err: any) {
+      alert("Error al procesar: Asegúrate que la imagen no supere los 10MB o verifica tu conexión de internet.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -147,7 +152,7 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-3xl font-black tracking-tight mb-2">Ingresar Obra Ejecutada</h2>
         <p className="text-secondary/60 text-sm mb-6">El modelo calculará la data de carbono y variables económicas al crearse.</p>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5" encType="multipart/form-data">
            <div className="grid md:grid-cols-2 gap-4">
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider">Nombre del Proyecto</label>
