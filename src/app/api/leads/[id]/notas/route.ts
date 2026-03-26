@@ -11,12 +11,13 @@ async function verifyAuth(req: Request, db: any) {
   return !!isValid;
 }
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const db = await getDB();
     if (!(await verifyAuth(req, db))) return NextResponse.json({ error: '401 Unauthorized' }, { status: 401 });
 
-    const quoteId = parseInt(params.id);
+    const quoteId = parseInt(id);
     if (isNaN(quoteId)) return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
 
     const lead = await db.get('SELECT id FROM quotes WHERE id = ?', [quoteId]);
