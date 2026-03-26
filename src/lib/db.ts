@@ -26,7 +26,8 @@ export async function getDB() {
         gridType TEXT,
         message TEXT,
         filePath TEXT,
-        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP,
+        isDeleted BOOLEAN DEFAULT 0
       );
 
       CREATE TABLE IF NOT EXISTS notes (
@@ -59,6 +60,7 @@ export async function getDB() {
     if (!columnNames.includes('assignedTo')) alterQueries.push("ALTER TABLE quotes ADD COLUMN assignedTo TEXT;");
     if (!columnNames.includes('projectType')) alterQueries.push("ALTER TABLE quotes ADD COLUMN projectType TEXT;");
     if (!columnNames.includes('source')) alterQueries.push("ALTER TABLE quotes ADD COLUMN source TEXT DEFAULT 'Web';");
+    if (!columnNames.includes('isDeleted')) alterQueries.push("ALTER TABLE quotes ADD COLUMN isDeleted BOOLEAN DEFAULT 0;");
 
     for (const q of alterQueries) {
       await db.exec(q);

@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
   const db = await getDB();
-  const leads = await db.all('SELECT * FROM quotes ORDER BY id DESC');
+  const leads = await db.all('SELECT * FROM quotes WHERE isDeleted = 0 OR isDeleted IS NULL ORDER BY id DESC');
   
   const activeLeadsCount = leads.filter(l => l.stage !== 'Ganado' && l.stage !== 'Perdido').length;
   const recentLeads = leads.slice(0, 5);

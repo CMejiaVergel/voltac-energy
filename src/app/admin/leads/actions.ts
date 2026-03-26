@@ -104,11 +104,36 @@ export async function deleteLeads(ids: number[], pass: string) {
   const db = await getDB();
   const placeholders = ids.map(() => '?').join(',');
   
-  // Also delete related notes to prevent foreign key or orphan constraints issues
-  await db.run(`DELETE FROM notes WHERE quoteId IN (${placeholders})`, ids);
-  await db.run(`DELETE FROM quotes WHERE id IN (${placeholders})`, ids);
+  // Soft Delete Instead of Hard Delete
+  await db.run(`UPDATE quotes SET isDeleted = 1 WHERE id IN (${placeholders})`, ids);
   
   revalidatePath('/admin/leads');
   revalidatePath('/admin');
+  revalidatePath('/admin/settings');
+  return { success: true };
+}
+
+export async function restoreLeads(ids: number[]) {
+  const db = await getDB();
+  const placeholders = ids.map(() => '?').join(',');
+  await db.run(`UPDATE quotes SET isDeleted = 0 WHERE id IN (${placeholders})`, ids);
+  revalidatePath('/admin/leads');
+  revalidatePath('/admin');
+  revalidatePath('/admin/settings');
+  return { success: true };
+}
+
+export async function permanentDeleteLeads(ids: number[], pass: string) {
+  if (pass !== "voltacenergy2026") {
+    return { success: false, error: "Contraseña administrativa incorrecta." };
+  }
+  
+  const db = await getDB();
+  const placeholders = ids.map(() => '?').join(',');
+  
+  await db.run(`DELETE FROM notes WHERE quoteId IN (${placeholders})`, ids);
+  await db.run(`DELETE FROM quotes WHERE id IN (${placeholders})`, ids);
+  
+  revalidatePath('/admin/settings');
   return { success: true };
 }

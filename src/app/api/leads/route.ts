@@ -16,7 +16,7 @@ export async function GET(req: Request) {
     if (!(await verifyAuth(req, db))) return NextResponse.json({ error: '401 Unauthorized' }, { status: 401 });
 
     const { searchParams } = new URL(req.url);
-    const filters: string[] = [];
+    const filters: string[] = ['(isDeleted = 0 OR isDeleted IS NULL)'];
     const values: any[] = [];
 
     const allowedFilters = ['etapa', 'fuente', 'modalidad', 'estado'];
