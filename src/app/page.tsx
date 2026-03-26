@@ -6,6 +6,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Target, ShieldCheck, Leaf, PieChart, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getPublishedProjects } from "./admin/proyectos/actions";
 
 const METRICS = [
   { label: "Instalación", value: "< 7 días", suffix: "" },
@@ -26,6 +27,12 @@ const SERVICES = [
 ];
 
 export default function Home() {
+  const [publishedProjects, setPublishedProjects] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    getPublishedProjects().then(data => setPublishedProjects(data));
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* 1. Hero Section */}
@@ -141,6 +148,48 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 3.1 Public Projects Reel */}
+      {publishedProjects.length > 0 && (
+        <section className="py-24 bg-muted border-y border-border/50">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16 max-w-2xl mx-auto">
+              <h2 className="text-4xl font-black text-secondary tracking-tight mb-4 text-balance">Realidades <span className="text-primary">Solares.</span></h2>
+              <p className="text-secondary/60">Últimas obras interconectadas entregando ahorro y sustentabilidad en este mismo instante.</p>
+            </div>
+            
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+               {publishedProjects.map((p, i) => (
+                  <motion.div key={p.id} initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="group rounded-[2rem] overflow-hidden bg-white border border-border shadow-md flex flex-col cursor-pointer">
+                    <div className="h-48 relative overflow-hidden bg-secondary">
+                      {p.imageUrl && <Image src={p.imageUrl} alt={p.name} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />}
+                      <div className="absolute top-4 left-4 bg-secondary/80 backdrop-blur-md text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{p.power} {p.powerUnit}</div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="font-black text-secondary text-xl border-b border-border pb-4 mb-4">{p.name}</h3>
+                      <div className="flex justify-between items-center bg-secondary/5 rounded-xl p-3 border border-border">
+                         <div>
+                            <p className="text-[10px] uppercase font-bold text-secondary/50 mb-0.5">Ahorro Analizado</p>
+                            <p className="text-primary font-black text-base leading-none">${parseFloat(p.savingsCalc).toLocaleString('es-CO')}</p>
+                         </div>
+                         <div className="text-right">
+                            <p className="text-[10px] uppercase font-bold text-secondary/50 mb-0.5">CO₂ Evitado</p>
+                            <p className="text-green-600 font-black text-base leading-none">-{parseFloat(p.co2calc).toFixed(1)} t</p>
+                         </div>
+                      </div>
+                    </div>
+                  </motion.div>
+               ))}
+            </div>
+            
+            <div className="mt-12 text-center">
+              <Link href="/proyectos">
+                <Button variant="outline" className="border-secondary text-secondary hover:bg-secondary hover:text-white rounded-full font-bold uppercase tracking-wider h-12 px-8">Explorar Portafolio Completo</Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 4. Why Voltac Energy */}
       <section className="py-24 bg-secondary text-white overflow-hidden relative">

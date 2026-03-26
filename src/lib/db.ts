@@ -46,6 +46,25 @@ export async function getDB() {
         name TEXT NOT NULL,
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS projects (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        power REAL NOT NULL,
+        powerUnit TEXT NOT NULL,
+        connectionType TEXT NOT NULL,
+        status TEXT NOT NULL,
+        dateExecuted TEXT NOT NULL,
+        projectType TEXT NOT NULL,
+        city TEXT NOT NULL,
+        department TEXT NOT NULL,
+        kwValue REAL NOT NULL,
+        co2calc REAL NOT NULL,
+        savingsCalc REAL NOT NULL,
+        isPublished BOOLEAN DEFAULT 0,
+        imageUrl TEXT,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     const columns = await db.all("PRAGMA table_info(quotes)");
