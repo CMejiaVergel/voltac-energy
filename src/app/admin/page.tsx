@@ -1,11 +1,18 @@
-"use client";
-
 import * as React from "react";
-import { Users, FolderKanban, Zap, Activity } from "lucide-react";
+import { Users, FolderKanban, Zap, Activity, Clock } from "lucide-react";
+import { getDB } from "@/lib/db";
 
-export default function AdminDashboardPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function AdminDashboardPage() {
+  const db = await getDB();
+  const leads = await db.all('SELECT * FROM quotes ORDER BY id DESC');
+  
+  const activeLeadsCount = leads.filter(l => l.stage !== 'Ganado' && l.stage !== 'Perdido').length;
+  const recentLeads = leads.slice(0, 5);
+
   const metrics = [
-    { label: "Leads Activos", value: "24", change: "+12% vs mes anterior", icon: <Users size={24} className="text-blue-500" /> },
+    { label: "Leads Activos", value: activeLeadsCount.toString(), change: "Última act. reciente", icon: <Users size={24} className="text-blue-500" /> },
     { label: "Proyectos Publicados", value: "12", change: "2 agregados esta sem", icon: <FolderKanban size={24} className="text-orange-500" /> },
     { label: "Potencia Total (MWp)", value: "3.5", change: "Objetivo: 5MWp", icon: <Zap size={24} className="text-yellow-500" /> },
     { label: "Tráfico / Sesiones", value: "850", change: "+45% vs mes anterior", icon: <Activity size={24} className="text-accent" /> },
@@ -34,34 +41,43 @@ export default function AdminDashboardPage() {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-8">
-         <div className="bg-white rounded-2xl border border-border p-6 shadow-sm">
-           <h3 className="font-bold text-lg mb-4">Últimos Leads (Simulado)</h3>
-           <div className="space-y-4">
-             {[1,2,3].map(i => (
-               <div key={i} className="flex justify-between items-center p-4 bg-muted/30 rounded-xl border border-border">
-                 <div>
-                   <p className="font-bold text-sm">Empresa Industrial S.A. {i}</p>
-                   <p className="text-xs text-secondary/60">Modalidad 3 - Hace 2 horas</p>
+         <div className="bg-white rounded-2xl border border-border p-6 shadow-sm flex flex-col h-full">
+           <h3 className="font-bold text-lg mb-4 flex items-center gap-2"><Clock size={18} className="text-secondary/50"/> Últimos Leads Registrados</h3>
+           <div className="space-y-4 flex-1">
+             {recentLeads.length === 0 ? (
+                <p className="text-sm text-secondary/50 italic py-6 text-center">No hay leads todavía.</p>
+             ) : (
+               recentLeads.map((lead: any) => (
+                 <div key={lead.id} className="flex justify-between items-center p-4 bg-muted/30 rounded-xl border border-border">
+                   <div>
+                     <p className="font-bold text-sm text-secondary flex items-center gap-2">
+                       {lead.fullName} {lead.priority === 'Alta' && <span className="w-2 h-2 rounded-full bg-red-500" title="Prioridad Alta"/>}
+                     </p>
+                     <p className="text-xs text-secondary/60 mt-1 capitalize">{lead.modality} · {new Date(lead.createdAt).toLocaleDateString('es-CO')}</p>
+                   </div>
+                   <div className="flex flex-col items-end gap-1">
+                     <span className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded-md uppercase tracking-wider">{lead.stage}</span>
+                     <span className="text-[10px] text-secondary/40 uppercase">{lead.source}</span>
+                   </div>
                  </div>
-                 <span className="text-xs font-bold text-accent px-2 py-1 bg-accent/10 rounded-full">Nuevo</span>
-               </div>
-             ))}
+               ))
+             )}
            </div>
          </div>
 
-         <div className="bg-white rounded-2xl border border-border p-6 shadow-sm">
+         <div className="bg-white rounded-2xl border border-border p-6 shadow-sm flex flex-col h-full">
            <h3 className="font-bold text-lg mb-4">Proyectos Recientes (Simulado)</h3>
            <div className="space-y-4">
-             {[1,2].map(i => (
+             {[1,2,3].map(i => (
                <div key={i} className="flex justify-between items-center p-4 bg-muted/30 rounded-xl border border-border">
                  <div className="flex gap-4 items-center">
-                   <div className="w-12 h-12 bg-secondary/10 rounded-lg"></div>
+                   <div className="w-12 h-12 bg-secondary/10 rounded-lg shrink-0"></div>
                    <div>
                      <p className="font-bold text-sm">Planta Solar Zona Norte {i}</p>
                      <p className="text-xs text-secondary/60">Cartagena - 250 kWp</p>
                    </div>
                  </div>
-                 <span className="text-xs font-bold text-primary px-2 py-1 bg-primary/10 rounded-full">Publicado</span>
+                 <span className="text-[10px] font-bold text-primary px-2 py-1 bg-primary/10 rounded-full uppercase tracking-wider">Publicado</span>
                </div>
              ))}
            </div>

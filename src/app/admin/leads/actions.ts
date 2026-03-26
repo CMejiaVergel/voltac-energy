@@ -95,3 +95,20 @@ export async function createManualLead(data: any, author: string = "Admin") {
   revalidatePath('/admin/leads');
   return newId;
 }
+
+export async function deleteLeads(ids: number[], pass: string) {
+  if (pass !== "voltacenergy2026") {
+    return { success: false, error: "Contraseña administrativa incorrecta." };
+  }
+  
+  const db = await getDB();
+  const placeholders = ids.map(() => '?').join(',');
+  
+  // Also delete related notes to prevent foreign key or orphan constraints issues
+  await db.run(`DELETE FROM notes WHERE quoteId IN (${placeholders})`, ids);
+  await db.run(`DELETE FROM quotes WHERE id IN (${placeholders})`, ids);
+  
+  revalidatePath('/admin/leads');
+  revalidatePath('/admin');
+  return { success: true };
+}
