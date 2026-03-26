@@ -131,16 +131,27 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
 function ProjectCreateModal({ onClose }: { onClose: () => void }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const formAction = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      const fd = new FormData(e.currentTarget);
-      const res = await createProject(fd);
+      const file = formData.get("file") as File | null;
+      if (file && file.size > 20 * 1024 * 1024) {
+         alert("La imagen fotografica es demasiado pesada (" + (file.size / 1024 / 1024).toFixed(1) + "MB). Debe pesar debajo de 20MB.");
+         setIsSubmitting(false);
+         return;
+      }
+
+      if (!file || file.size === 0) {
+         alert("Por favor selecciona un archivo fotográfico funcional.");
+         setIsSubmitting(false);
+         return;
+      }
+
+      const res = await createProject(formData);
       if (!res.success) alert(res.error);
       else onClose();
     } catch (err: any) {
-      alert("Error al procesar: Asegúrate que la imagen no supere los 10MB o verifica tu conexión de internet.");
+      alert("Error al procesar: El servidor de nube cerró la conexión al colapsar el streaming.");
     } finally {
       setIsSubmitting(false);
     }
@@ -152,7 +163,7 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-3xl font-black tracking-tight mb-2">Ingresar Obra Ejecutada</h2>
         <p className="text-secondary/60 text-sm mb-6">El modelo calculará la data de carbono y variables económicas al crearse.</p>
 
-        <form onSubmit={handleSubmit} className="space-y-5" encType="multipart/form-data">
+        <form action={formAction} className="space-y-5" encType="multipart/form-data">
            <div className="grid md:grid-cols-2 gap-4">
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider">Nombre del Proyecto</label>
