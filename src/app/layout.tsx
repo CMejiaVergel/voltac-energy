@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { LegalModals } from "@/components/layout/LegalModals";
 import { CookieConsent } from "@/components/layout/CookieConsent";
+import { AnalyticsTracker } from "@/components/layout/AnalyticsTracker";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -96,6 +97,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-sans">
+        <AnalyticsTracker />
         <Navbar />
         <main className="flex-1">
           {children}

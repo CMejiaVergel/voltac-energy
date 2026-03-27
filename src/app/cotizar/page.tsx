@@ -58,6 +58,7 @@ export default function CotizarPage() {
 
   const onSubmitExpress = async (data: z.infer<typeof expressSchema>) => {
     setIsSubmitting(true);
+    fetch('/api/analytics', { method: 'POST', body: JSON.stringify({event: 'click_cotizar', path: '/cotizar/express'}) }).catch(()=>{});
     const formData = new FormData();
     formData.append("modality", "express");
     formData.append("fullName", data.fullName);
@@ -80,6 +81,7 @@ export default function CotizarPage() {
 
   const onSubmitManual = async (data: z.infer<typeof manualSchema>) => {
     setIsSubmitting(true);
+    fetch('/api/analytics', { method: 'POST', body: JSON.stringify({event: 'click_cotizar', path: '/cotizar/manual'}) }).catch(()=>{});
     const formData = new FormData();
     formData.append("modality", "manual");
     formData.append("fullName", data.fullName);
@@ -97,6 +99,7 @@ export default function CotizarPage() {
 
   const onSubmitDetailed = async (data: z.infer<typeof detailedSchema>) => {
     setIsSubmitting(true);
+    fetch('/api/analytics', { method: 'POST', body: JSON.stringify({event: 'click_cotizar', path: '/cotizar/detailed'}) }).catch(()=>{});
     const formData = new FormData();
     formData.append("modality", "detailed");
     formData.append("fullName", data.fullName);
