@@ -3,11 +3,12 @@
 import * as React from "react";
 import { FolderKanban, Plus, Image as ImageIcon, Trash2, Eye, EyeOff, TreeDeciduous, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { togglePublishProject, deleteProject, createProject, bulkPublishProjects, bulkDeleteProjects } from "./actions";
+import { togglePublishProject, deleteProject, createProject, bulkPublishProjects, bulkDeleteProjects, updateProject } from "./actions";
 
 export default function ProjectsClient({ initialProjects }: { initialProjects: any[] }) {
   const [projects, setProjects] = React.useState(initialProjects);
   const [isCreating, setIsCreating] = React.useState(false);
+  const [editingProject, setEditingProject] = React.useState<any>(null);
   const [delTarget, setDelTarget] = React.useState<number | null>(null);
   const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
   
@@ -102,7 +103,10 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
                         </div>
                       </div>
                     ) : (
-                      <button onClick={(e) => { e.stopPropagation(); setDelTarget(p.id); }} className="text-secondary/30 hover:text-red-500 transition-colors p-1"><Trash2 size={16}/></button>
+                      <div className="flex items-center gap-1">
+                        <button onClick={(e) => { e.stopPropagation(); setEditingProject(p); }} className="text-secondary/50 hover:text-primary transition-colors p-1.5 bg-muted rounded-full">Editar</button>
+                        <button onClick={(e) => { e.stopPropagation(); setDelTarget(p.id); }} className="text-secondary/30 hover:text-red-500 transition-colors p-1"><Trash2 size={16}/></button>
+                      </div>
                     )}
                  </div>
                  
@@ -152,12 +156,12 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
          ))}
       </div>
 
-      {isCreating && <ProjectCreateModal onClose={() => setIsCreating(false)} />}
+      {(isCreating || editingProject) && <ProjectCreateModal editProject={editingProject} onClose={() => { setIsCreating(false); setEditingProject(null); }} />}
     </div>
   );
 }
 
-function ProjectCreateModal({ onClose }: { onClose: () => void }) {
+function ProjectCreateModal({ onClose, editProject }: { onClose: () => void, editProject?: any }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const formAction = async (formData: FormData) => {
@@ -170,13 +174,16 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
          return;
       }
 
-      if (!file || file.size === 0) {
+      if (!editProject && (!file || file.size === 0)) {
          alert("Por favor selecciona un archivo fotográfico.");
          setIsSubmitting(false);
          return;
       }
 
-      const res = await createProject(formData);
+      const res = editProject 
+        ? await updateProject(editProject.id, formData) 
+        : await createProject(formData);
+        
       if (!res.success) alert(res.error);
       else onClose();
     } catch (err: any) {
@@ -189,8 +196,8 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-secondary/80 backdrop-blur-sm animate-in fade-in">
       <div className="bg-background rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative border border-border p-8 text-secondary">
-        <h2 className="text-3xl font-black tracking-tight mb-2">Ingresar Obra Ejecutada</h2>
-        <p className="text-secondary/60 text-sm mb-6">Las fotos se comprimen automáticamente a calidad web (1920px, JPEG 80%).</p>
+        <h2 className="text-3xl font-black tracking-tight mb-2">{editProject ? "Editar Proyecto" : "Ingresar Obra Ejecutada"}</h2>
+        <p className="text-secondary/60 text-sm mb-6">{editProject ? "Modifica los valores deseados. Deja la foto vacía para conservarla." : "Las fotos se comprimen automáticamente a calidad web (1920px, JPEG 80%)."}</p>
 
         {isSubmitting ? (
           <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in zoom-in duration-500">
@@ -216,74 +223,74 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
            <div className="grid md:grid-cols-2 gap-4">
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider">Nombre del Proyecto</label>
-                 <input required name="name" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="EJ: Planta Solar EcoMall..." />
+                 <input required name="name" defaultValue={editProject?.name} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="EJ: Planta Solar EcoMall..." />
               </div>
               
               <div className="flex gap-2">
                 <div className="flex-1">
                    <label className="text-xs font-bold uppercase tracking-wider">Capacidad / Potencia</label>
-                   <input required type="number" step="any" name="power" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="250" />
+                   <input required type="number" step="any" name="power" defaultValue={editProject?.power} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="250" />
                 </div>
                 <div className="w-1/3">
                    <label className="text-xs font-bold uppercase tracking-wider">Unidad</label>
-                   <select name="powerUnit" className="w-full p-3 bg-muted rounded-xl outline-none"><option>kWp</option><option>kW</option><option>W</option><option>MW</option></select>
+                   <select name="powerUnit" defaultValue={editProject?.powerUnit} className="w-full p-3 bg-muted rounded-xl outline-none"><option>kWp</option><option>kW</option><option>W</option><option>MW</option></select>
                 </div>
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Valor KWh Promedio (Para COP$)</label>
-                 <input required type="number" step="any" name="kwValue" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="EJ: 950" />
+                 <input required type="number" step="any" name="kwValue" defaultValue={editProject?.kwValue} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="EJ: 950" />
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Tipo (Topología de Obra)</label>
-                 <select required name="projectType" className="w-full p-3 bg-muted rounded-xl outline-none"><option>Residencial</option><option>Comercial</option><option>Industrial</option><option>Mini granja</option><option>Granja Solar PPA</option></select>
+                 <select required name="projectType" defaultValue={editProject?.projectType} className="w-full p-3 bg-muted rounded-xl outline-none"><option>Residencial</option><option>Comercial</option><option>Industrial</option><option>Mini granja</option><option>Granja Solar PPA</option></select>
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Conexión de Red</label>
-                 <select required name="connectionType" className="w-full p-3 bg-muted rounded-xl outline-none"><option>Conectado a la red</option><option>Aislados</option><option>Híbridos</option><option>Generación a Escala</option></select>
+                 <select required name="connectionType" defaultValue={editProject?.connectionType} className="w-full p-3 bg-muted rounded-xl outline-none"><option>Conectado a la red</option><option>Aislados</option><option>Híbridos</option><option>Generación a Escala</option></select>
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Ciudad / Municipio</label>
-                 <input required name="city" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Bucaramanga..." />
+                 <input required name="city" defaultValue={editProject?.city} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Bucaramanga..." />
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">% Ahorro en Factura (Ej: 90)</label>
-                 <input type="number" step="any" required name="reductionPercent" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="90" />
+                 <input type="number" step="any" required name="reductionPercent" defaultValue={editProject?.reductionPercent} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="90" />
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Retorno Inversión (Ej: 4-5 años)</label>
-                 <input required name="roiRange" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="3.5 - 4.5 años" />
+                 <input required name="roiRange" defaultValue={editProject?.roiRange} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="3.5 - 4.5 años" />
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Departamento</label>
-                 <input required name="department" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Santander..." />
+                 <input required name="department" defaultValue={editProject?.department} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Santander..." />
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Estado Técnico</label>
-                 <select required name="status" className="w-full p-3 bg-muted rounded-xl outline-none"><option>Ejecutado</option><option>En Ejecución</option></select>
+                 <select required name="status" defaultValue={editProject?.status} className="w-full p-3 bg-muted rounded-xl outline-none"><option>Ejecutado</option><option>En Ejecución</option></select>
               </div>
 
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Fecha / Año (Vigencia)</label>
-                 <input required name="dateExecuted" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Septiembre 2025" />
+                 <input required name="dateExecuted" defaultValue={editProject?.dateExecuted} className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Septiembre 2025" />
               </div>
 
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider text-primary">Fotografía Deslumbrante (Portada)</label>
-                 <input required name="file" type="file" accept="image/*" className="w-full p-3 bg-primary/5 rounded-xl border border-primary/20 outline-none text-sm text-secondary/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary file:text-secondary hover:file:bg-primary/80" />
+                 <input name="file" type="file" required={!editProject} accept="image/*" className="w-full p-3 bg-primary/5 rounded-xl border border-primary/20 outline-none text-sm text-secondary/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary file:text-secondary hover:file:bg-primary/80" />
               </div>
            </div>
 
            <div className="flex gap-4 pt-4">
               <Button type="button" variant="ghost" onClick={onClose} className="flex-1">Cancelar</Button>
-              <Button type="submit" variant="default" className="flex-1 bg-secondary text-primary">Ingresar Proyecto</Button>
+              <Button type="submit" variant="default" className="flex-1 bg-secondary text-primary">{editProject ? "Guardar Cambios" : "Ingresar Proyecto"}</Button>
            </div>
         </form>
         )}

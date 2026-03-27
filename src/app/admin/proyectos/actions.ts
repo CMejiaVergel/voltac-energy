@@ -129,6 +129,63 @@ export async function createProject(formData: FormData) {
   }
 }
 
+export async function updateProject(id: number, formData: FormData) {
+  try {
+    const db = await getDB();
+    const name = formData.get("name") as string;
+    const power = parseFloat(formData.get("power") as string);
+    const powerUnit = formData.get("powerUnit") as string;
+    const connectionType = formData.get("connectionType") as string;
+    const status = formData.get("status") as string;
+    const dateExecuted = formData.get("dateExecuted") as string;
+    const projectType = formData.get("projectType") as string;
+    const city = formData.get("city") as string;
+    const department = formData.get("department") as string;
+    const kwValue = parseFloat(formData.get("kwValue") as string);
+    const reductionPercent = parseFloat(formData.get("reductionPercent") as string || "0");
+    const roiRange = formData.get("roiRange") as string || "";
+    const file = formData.get("file") as File | null;
+
+    let imageUrl = null;
+    if (file && file.size > 0) {
+      imageUrl = await compressAndSave(file);
+    }
+
+    // Calcular formulas automáticas
+    const capacityKw = powerUnit === "W" ? power / 1000 : powerUnit === "MW" ? power * 1000 : power;
+    const annualGenerationKWh = capacityKw * 1642.5;
+    const co2calc = annualGenerationKWh * 0.000164;
+    const savingsCalc = annualGenerationKWh * kwValue;
+
+    if (imageUrl) {
+      await db.run(
+        `UPDATE projects SET 
+          name = ?, power = ?, powerUnit = ?, connectionType = ?, status = ?, dateExecuted = ?, 
+          projectType = ?, city = ?, department = ?, kwValue = ?, co2calc = ?, savingsCalc = ?, imageUrl = ?, reductionPercent = ?, roiRange = ?
+        WHERE id = ?`,
+        [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl, reductionPercent, roiRange, id]
+      );
+    } else {
+      await db.run(
+        `UPDATE projects SET 
+          name = ?, power = ?, powerUnit = ?, connectionType = ?, status = ?, dateExecuted = ?, 
+          projectType = ?, city = ?, department = ?, kwValue = ?, co2calc = ?, savingsCalc = ?, reductionPercent = ?, roiRange = ?
+        WHERE id = ?`,
+        [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, reductionPercent, roiRange, id]
+      );
+    }
+
+    revalidatePath("/admin/proyectos");
+    revalidatePath("/proyectos");
+    revalidatePath("/");
+    
+    return { success: true };
+  } catch (err: any) {
+    console.error(err);
+    return { success: false, error: err.message };
+  }
+}
+
 export async function getPublishedProjects() {
   const db = await getDB();
   const projects = await db.all("SELECT * FROM projects WHERE isPublished = 1 ORDER BY id DESC LIMIT 6");
