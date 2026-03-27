@@ -163,7 +163,23 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-3xl font-black tracking-tight mb-2">Ingresar Obra Ejecutada</h2>
         <p className="text-secondary/60 text-sm mb-6">Las fotos se comprimen automáticamente a calidad web (1920px, JPEG 80%).</p>
 
-        <form action={formAction} className="space-y-5" encType="multipart/form-data">
+        {isSubmitting ? (
+          <div className="py-20 flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in zoom-in duration-500">
+            <div className="relative w-20 h-20">
+              <div className="absolute inset-0 border-4 border-primary/20 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            <div>
+              <h3 className="text-2xl font-black text-secondary tracking-tight mb-2">Comprimiendo & Calculando...</h3>
+              <p className="text-secondary/60 text-sm max-w-sm mx-auto">
+                La Inteligencia Artificial está optimizando la imagen de alta resolución para la web y computando el modelo de impacto ambiental.
+                <br /><br />
+                <span className="font-bold text-primary">Por favor, no cierres ni recargues esta ventana.</span>
+              </p>
+            </div>
+          </div>
+        ) : (
+          <form action={formAction} className="space-y-5" encType="multipart/form-data">
            <div className="grid md:grid-cols-2 gap-4">
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider">Nombre del Proyecto</label>
@@ -224,9 +240,10 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
 
            <div className="flex gap-4 pt-4">
               <Button type="button" variant="ghost" onClick={onClose} className="flex-1">Cancelar</Button>
-              <Button type="submit" variant="default" className="flex-1 bg-secondary text-primary" disabled={isSubmitting}>{isSubmitting ? "Comprimiendo & Calculando..." : "Ingresar Proyecto"}</Button>
+              <Button type="submit" variant="default" className="flex-1 bg-secondary text-primary">Ingresar Proyecto</Button>
            </div>
         </form>
+        )}
       </div>
     </div>
   );
