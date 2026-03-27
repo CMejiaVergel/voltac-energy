@@ -66,22 +66,12 @@ export async function createProject(formData: FormData) {
     const city = formData.get("city") as string;
     const department = formData.get("department") as string;
     const kwValue = parseFloat(formData.get("kwValue") as string);
+    const file = formData.get("file") as File | null;
 
-    // Procesar todas las imágenes subidas
-    const files = formData.getAll("files") as File[];
-    const imageUrls: string[] = [];
-
-    for (const file of files) {
-      if (file && file.size > 0) {
-        const url = await compressAndSave(file);
-        imageUrls.push(url);
-      }
+    let imageUrl = null;
+    if (file && file.size > 0) {
+      imageUrl = await compressAndSave(file);
     }
-
-    // La primera imagen es la portada principal
-    const imageUrl = imageUrls[0] || null;
-    // Todas las imágenes como JSON array
-    const galleryJson = JSON.stringify(imageUrls);
 
     // Calcular formulas automáticas
     const capacityKw = powerUnit === "W" ? power / 1000 : powerUnit === "MW" ? power * 1000 : power;
@@ -92,9 +82,9 @@ export async function createProject(formData: FormData) {
     await db.run(
       `INSERT INTO projects (
         name, power, powerUnit, connectionType, status, dateExecuted, 
-        projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl, gallery
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl, galleryJson]
+        projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl]
     );
 
     revalidatePath("/admin/proyectos");

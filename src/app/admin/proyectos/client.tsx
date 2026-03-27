@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { FolderKanban, Plus, Image as ImageIcon, Trash2, Eye, EyeOff, TreeDeciduous, Banknote, X, Images } from "lucide-react";
+import { FolderKanban, Plus, Image as ImageIcon, Trash2, Eye, EyeOff, TreeDeciduous, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { togglePublishProject, deleteProject } from "./actions";
+import { togglePublishProject, deleteProject, createProject } from "./actions";
 
-        export default function ProjectsClient({ initialProjects }: { initialProjects: any[] }) {
+export default function ProjectsClient({ initialProjects }: { initialProjects: any[] }) {
   const [projects, setProjects] = React.useState(initialProjects);
   const [isCreating, setIsCreating] = React.useState(false);
   const [delTarget, setDelTarget] = React.useState<number | null>(null);
@@ -31,9 +31,7 @@ import { togglePublishProject, deleteProject } from "./actions";
                <p className="text-xl">Sin proyectos. Construye el primero interactuando arriba.</p>
            </div>
          )}
-         {projects.map(p => {
-           const galleryArr = (() => { try { return JSON.parse(p.gallery || '[]'); } catch { return []; } })();
-           return (
+         {projects.map(p => (
            <div key={p.id} className="bg-white rounded-[2rem] border border-border overflow-hidden shadow-lg flex flex-col group relative">
               {/* Cover Image */}
               <div className="h-48 relative overflow-hidden bg-muted flex items-center justify-center">
@@ -56,11 +54,6 @@ import { togglePublishProject, deleteProject } from "./actions";
                        {p.isPublished ? <><Eye size={14}/> Público</> : <><EyeOff size={14}/> Oculto</>}
                     </button>
                  </div>
-                 {galleryArr.length > 1 && (
-                   <div className="absolute bottom-3 left-3 bg-secondary/70 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1">
-                     <Images size={12}/> {galleryArr.length} fotos
-                   </div>
-                 )}
               </div>
 
               {/* Data Content */}
@@ -127,7 +120,7 @@ import { togglePublishProject, deleteProject } from "./actions";
                  </div>
               </div>
            </div>
-         );})}
+         ))}
       </div>
 
       {isCreating && <ProjectCreateModal onClose={() => setIsCreating(false)} />}
@@ -137,50 +130,26 @@ import { togglePublishProject, deleteProject } from "./actions";
 
 function ProjectCreateModal({ onClose }: { onClose: () => void }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
-  const [previews, setPreviews] = React.useState<string[]>([]);
 
-  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setSelectedFiles(prev => [...prev, ...files]);
-    files.forEach(f => {
-      const reader = new FileReader();
-      reader.onloadend = () => setPreviews(prev => [...prev, reader.result as string]);
-      reader.readAsDataURL(f);
-    });
-  };
-
-  const removeFile = (index: number) => {
-    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
-    setPreviews(prev => prev.filter((_, i) => i !== index));
-  };
-
-  const formAction = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const formAction = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      if (selectedFiles.length === 0) {
-         alert("Por favor selecciona al menos una fotografía del proyecto.");
+      const file = formData.get("file") as File | null;
+      if (file && file.size > 50 * 1024 * 1024) {
+         alert("La imagen fotografica es demasiado pesada (" + (file.size / 1024 / 1024).toFixed(1) + "MB). Debe pesar debajo de 50MB.");
          setIsSubmitting(false);
          return;
       }
 
-      const formData = new FormData(e.currentTarget);
-      formData.delete("files");
-      selectedFiles.forEach(f => formData.append("files", f));
-
-      const response = await fetch("/api/projects", {
-        method: "POST",
-        body: formData,
-      });
-
-      const res = await response.json();
-      
-      if (!res.success) alert(res.error);
-      else {
-        window.location.reload(); // Recargar visualmente los datos
-        onClose();
+      if (!file || file.size === 0) {
+         alert("Por favor selecciona un archivo fotográfico.");
+         setIsSubmitting(false);
+         return;
       }
+
+      const res = await createProject(formData);
+      if (!res.success) alert(res.error);
+      else onClose();
     } catch (err: any) {
       alert("Error al procesar: " + (err.message || "Verifica tu conexión."));
     } finally {
@@ -194,7 +163,7 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-3xl font-black tracking-tight mb-2">Ingresar Obra Ejecutada</h2>
         <p className="text-secondary/60 text-sm mb-6">Las fotos se comprimen automáticamente a calidad web (1920px, JPEG 80%).</p>
 
-        <form onSubmit={formAction} className="space-y-5" encType="multipart/form-data">
+        <form action={formAction} className="space-y-5" encType="multipart/form-data">
            <div className="grid md:grid-cols-2 gap-4">
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider">Nombre del Proyecto</label>
@@ -247,28 +216,9 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
                  <input required name="dateExecuted" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Septiembre 2025" />
               </div>
 
-              {/* Multi-file upload with preview */}
               <div className="col-span-2">
-                 <label className="text-xs font-bold uppercase tracking-wider text-primary">Fotografías del Proyecto (Múltiples)</label>
-                 <p className="text-[10px] text-secondary/50 mb-2">La primera imagen será la portada. Se comprimen automáticamente con IA.</p>
-                 
-                 <label className="cursor-pointer flex flex-col items-center justify-center w-full h-24 border-2 border-primary/30 border-dashed rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors mb-3">
-                    <Plus className="text-primary mb-1" size={24}/>
-                    <span className="text-xs font-bold text-primary">Agregar Fotos (Drone, Instalación, Detalle...)</span>
-                    <input type="file" className="hidden" accept="image/*" multiple onChange={handleFilesChange} />
-                 </label>
-
-                 {previews.length > 0 && (
-                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                      {previews.map((src, i) => (
-                        <div key={i} className="relative group/thumb rounded-lg overflow-hidden border border-border aspect-square">
-                          <img src={src} alt={`preview-${i}`} className="w-full h-full object-cover" />
-                          {i === 0 && <div className="absolute top-0 left-0 bg-primary text-[8px] text-secondary font-black px-1.5 py-0.5 rounded-br-md">PORTADA</div>}
-                          <button type="button" onClick={() => removeFile(i)} className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover/thumb:opacity-100 transition-opacity"><X size={12}/></button>
-                        </div>
-                      ))}
-                   </div>
-                 )}
+                 <label className="text-xs font-bold uppercase tracking-wider text-primary">Fotografía Deslumbrante (Portada)</label>
+                 <input required name="file" type="file" accept="image/*" className="w-full p-3 bg-primary/5 rounded-xl border border-primary/20 outline-none text-sm text-secondary/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary file:text-secondary hover:file:bg-primary/80" />
               </div>
            </div>
 
