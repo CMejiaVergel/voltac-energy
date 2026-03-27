@@ -13,11 +13,12 @@ export const metadata = {
 
 export default async function ProyectosPage() {
   const db = await getDB();
-  const dbProjects = await db.all("SELECT * FROM projects WHERE isPublished = 1 ORDER BY id DESC");
+  const allProjects = await db.all("SELECT * FROM projects");
+  const publishedProjects = allProjects.filter((p: any) => p.isPublished === 1).sort((a: any, b: any) => b.id - a.id);
   
-  const mwpAcumulado = dbProjects.reduce((acc, p) => acc + (p.powerUnit === 'MW' ? p.power : p.powerUnit === 'W' ? p.power/1000000 : p.power/1000), 0).toFixed(2);
-  const co2Acumulado = dbProjects.reduce((acc, p) => acc + parseFloat(p.co2calc), 0).toFixed(0);
-  const ahorroAcumulado = dbProjects.reduce((acc, p) => acc + parseFloat(p.savingsCalc), 0);
+  const mwpAcumulado = allProjects.reduce((acc: number, p: any) => acc + (p.powerUnit === 'MW' ? p.power : p.powerUnit === 'W' ? p.power/1000000 : p.power/1000), 0).toFixed(2);
+  const co2Acumulado = allProjects.reduce((acc: number, p: any) => acc + parseFloat(p.co2calc || 0), 0).toFixed(0);
+  const ahorroAcumulado = allProjects.reduce((acc: number, p: any) => acc + parseFloat(p.savingsCalc || 0), 0);
 
   const COP_Ahorro = ahorroAcumulado > 1000000000 
     ? (ahorroAcumulado/1000000000).toFixed(1) + 'B' 
@@ -42,7 +43,7 @@ export default async function ProyectosPage() {
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 relative z-10 divide-x divide-white/10">
             <div className="space-y-2 py-4">
-              <p className="text-5xl font-black tracking-tighter tabular-nums">{dbProjects.length}</p>
+              <p className="text-5xl font-black tracking-tighter tabular-nums">{allProjects.length}</p>
               <p className="text-white/60 font-medium">Proyectos Finalizados</p>
             </div>
             <div className="space-y-2 py-4">
@@ -61,10 +62,10 @@ export default async function ProyectosPage() {
         </section>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {dbProjects.length === 0 ? (
+          {publishedProjects.length === 0 ? (
              <div className="col-span-3 py-20 text-center font-bold text-secondary/50">El equipo técnico publicará métricas fotovoltaicas pronto.</div>
           ) : (
-            dbProjects.map((project: any) => (
+            publishedProjects.map((project: any) => (
               <div key={project.id} className="group rounded-[2rem] overflow-hidden bg-white border border-border shadow-md hover:shadow-2xl transition-all h-full flex flex-col">
                 
                 <div className="relative h-64 w-full overflow-hidden bg-muted">
@@ -86,31 +87,48 @@ export default async function ProyectosPage() {
                     {project.name}
                   </h3>
                   
-                  <div className="grid grid-cols-2 gap-4 mb-8">
-                     <div className="bg-secondary/5 p-3 rounded-xl border border-secondary/10">
-                        <MapPin size={16} className="text-secondary/50 mb-1"/>
-                        <p className="font-bold text-xs truncate" title={`${project.city}, ${project.department}`}>{project.city}, {project.department}</p>
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                     <div className="flex items-center gap-2 text-secondary/70">
+                        <MapPin size={16} className="text-primary"/>
+                        <p className="font-bold text-sm truncate">{project.city}</p>
                      </div>
-                     <div className="bg-secondary/5 p-3 rounded-xl border border-secondary/10">
-                        <Sun size={16} className="text-secondary/50 mb-1"/>
-                        <p className="font-bold text-xs truncate" title={project.connectionType}>{project.connectionType}</p>
-                     </div>
-                     <div className="bg-secondary/5 p-3 rounded-xl border border-secondary/10">
-                        <Award size={16} className="text-secondary/50 mb-1"/>
-                        <p className="font-bold text-xs truncate">{(project.dateExecuted || '').split(' ')[0]}</p>
-                     </div>
-                     <div className="bg-green-50 p-3 rounded-xl border border-green-200 text-green-700">
-                        <TreeDeciduous size={16} className="mb-1"/>
-                        <p className="font-bold text-xs">-{parseFloat(project.co2calc).toFixed(1)} tCO₂</p>
+                     <div className="flex items-center gap-2 text-secondary/70">
+                        <Sun size={16} className="text-primary"/>
+                        <p className="font-bold text-sm truncate">{project.connectionType}</p>
                      </div>
                   </div>
 
-                  <div className="mt-auto border-t border-border pt-4 -mx-2 px-2 flex items-center justify-between">
-                     <div className="flex gap-2 items-center">
-                        <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center"><Banknote size={16}/></div>
-                        <div>
-                          <p className="text-xs font-bold uppercase text-secondary/40">Ahorro Anual</p>
-                          <p className="font-black text-secondary text-sm">${parseFloat(project.savingsCalc).toLocaleString('es-CO')}</p>
+                  {/* Impact Showcase Area */}
+                  <div className="bg-secondary p-5 flex-1 rounded-[1.5rem] flex flex-col">
+                     <h4 className="text-[10px] uppercase font-bold tracking-widest text-white/50 mb-4">Impacto Energético</h4>
+                     
+                     <div className="flex gap-4 mb-6">
+                        {project.reductionPercent > 0 && (
+                          <div className="flex-1 bg-white/10 rounded-xl p-3 border border-white/5 relative overflow-hidden">
+                             <div className="absolute top-0 right-0 w-16 h-16 bg-primary/20 rounded-bl-full -mr-8 -mt-8"></div>
+                             <p className="text-3xl font-black text-primary leading-none mb-1">-{project.reductionPercent}%</p>
+                             <p className="text-[10px] font-medium text-white/70 uppercase leading-tight">Gasto Energía</p>
+                          </div>
+                        )}
+                        {project.roiRange && (
+                          <div className="flex-1 bg-white/10 rounded-xl p-3 border border-white/5 relative overflow-hidden">
+                             <p className="text-xl font-black text-white leading-none mb-1 mt-1">{project.roiRange}</p>
+                             <p className="text-[10px] font-medium text-white/70 uppercase leading-tight mt-1.5">Retorno Inversión (ROI)</p>
+                          </div>
+                        )}
+                     </div>
+
+                     <div className="mt-auto flex items-center justify-between border-t border-white/10 pt-4">
+                        <div className="flex gap-2 items-center">
+                           <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center"><TreeDeciduous size={16}/></div>
+                           <div>
+                             <p className="text-[10px] font-bold uppercase text-white/50">CO₂ Anual</p>
+                             <p className="font-black text-white text-sm">-{parseFloat(project.co2calc).toFixed(1)} tons</p>
+                           </div>
+                        </div>
+                        <div className="text-right">
+                           <p className="text-[10px] font-bold uppercase text-white/50">Ahorro Anual</p>
+                           <p className="font-black text-primary text-sm">${parseFloat(project.savingsCalc).toLocaleString('es-CO')}</p>
                         </div>
                      </div>
                   </div>

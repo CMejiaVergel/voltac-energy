@@ -43,10 +43,39 @@ export async function togglePublishProject(id: number, currentPublished: boolean
   return { success: true };
 }
 
+export async function bulkPublishProjects(ids: number[], publish: boolean) {
+  const db = await getDB();
+  if (publish) {
+    const pub = await db.all("SELECT id FROM projects WHERE isPublished = 1");
+    if (pub.length + ids.length > 6) {
+      return { success: false, error: "No puedes publicar todos estos a la vez, superarían el límite de 6 visibles públicos." };
+    }
+  }
+
+  const placeholders = ids.map(() => '?').join(',');
+  await db.run(`UPDATE projects SET isPublished = ? WHERE id IN (${placeholders})`, [publish ? 1 : 0, ...ids]);
+  
+  revalidatePath("/admin/proyectos");
+  revalidatePath("/proyectos");
+  revalidatePath("/");
+  return { success: true };
+}
+
 export async function deleteProject(id: number, pass: string) {
   if (pass !== "voltacenergy2026") return { success: false, error: "Contraseña incorrecta." };
   const db = await getDB();
   await db.run("DELETE FROM projects WHERE id = ?", [id]);
+  revalidatePath("/admin/proyectos");
+  revalidatePath("/proyectos");
+  revalidatePath("/");
+  return { success: true };
+}
+
+export async function bulkDeleteProjects(ids: number[], pass: string) {
+  if (pass !== "voltacenergy2026") return { success: false, error: "Contraseña incorrecta." };
+  const db = await getDB();
+  const placeholders = ids.map(() => '?').join(',');
+  await db.run(`DELETE FROM projects WHERE id IN (${placeholders})`, [...ids]);
   revalidatePath("/admin/proyectos");
   revalidatePath("/proyectos");
   revalidatePath("/");
@@ -66,6 +95,8 @@ export async function createProject(formData: FormData) {
     const city = formData.get("city") as string;
     const department = formData.get("department") as string;
     const kwValue = parseFloat(formData.get("kwValue") as string);
+    const reductionPercent = parseFloat(formData.get("reductionPercent") as string || "0");
+    const roiRange = formData.get("roiRange") as string || "";
     const file = formData.get("file") as File | null;
 
     let imageUrl = null;
@@ -82,9 +113,9 @@ export async function createProject(formData: FormData) {
     await db.run(
       `INSERT INTO projects (
         name, power, powerUnit, connectionType, status, dateExecuted, 
-        projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl]
+        projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl, reductionPercent, roiRange
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl, reductionPercent, roiRange]
     );
 
     revalidatePath("/admin/proyectos");

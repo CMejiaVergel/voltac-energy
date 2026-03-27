@@ -3,14 +3,21 @@
 import * as React from "react";
 import { FolderKanban, Plus, Image as ImageIcon, Trash2, Eye, EyeOff, TreeDeciduous, Banknote } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { togglePublishProject, deleteProject, createProject } from "./actions";
+import { togglePublishProject, deleteProject, createProject, bulkPublishProjects, bulkDeleteProjects } from "./actions";
 
 export default function ProjectsClient({ initialProjects }: { initialProjects: any[] }) {
   const [projects, setProjects] = React.useState(initialProjects);
   const [isCreating, setIsCreating] = React.useState(false);
   const [delTarget, setDelTarget] = React.useState<number | null>(null);
+  const [selectedIds, setSelectedIds] = React.useState<Set<number>>(new Set());
   
   React.useEffect(() => { setProjects(initialProjects); }, [initialProjects]);
+
+  const toggleSelection = (id: number) => {
+    const next = new Set(selectedIds);
+    if(next.has(id)) next.delete(id); else next.add(id);
+    setSelectedIds(next);
+  };
 
   return (
     <div className="space-y-8">
@@ -19,9 +26,27 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
           <h1 className="text-3xl font-black text-secondary tracking-tight">Gestión de Proyectos</h1>
           <p className="text-secondary/60">Sube tu obra, y el motor de IA calculará la huella de carbono y el impacto financiero automáticamente.</p>
         </div>
-        <Button onClick={() => setIsCreating(true)} className="gap-2 shrink-0">
-          <Plus size={18}/> Agregar Nuevo Proyecto
-        </Button>
+        <div className="flex gap-2 shrink-0 flex-wrap">
+          {selectedIds.size > 0 && (
+            <div className="flex gap-2 animate-in fade-in slide-in-from-right-4 mr-4 bg-muted/50 p-1.5 rounded-xl border border-border">
+               <span className="text-xs font-bold text-secondary/60 self-center px-2">{selectedIds.size} seleccionados:</span>
+               <button onClick={async () => {
+                  const pass = prompt("Clave admin para eliminar " + selectedIds.size + " proyectos:");
+                  if(pass) {
+                    const res = await bulkDeleteProjects(Array.from(selectedIds), pass);
+                    if(res.success) setSelectedIds(new Set()); else alert(res.error);
+                  }
+               }} className="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"><Trash2 size={14}/> Purgar</button>
+               <button onClick={async () => {
+                  const res = await bulkPublishProjects(Array.from(selectedIds), true);
+                  if(res.success) setSelectedIds(new Set()); else alert(res.error);
+               }} className="text-xs bg-primary/20 hover:bg-primary/30 text-secondary px-3 py-1.5 rounded-lg flex items-center gap-1 transition-colors"><Eye size={14}/> Publicar</button>
+            </div>
+          )}
+          <Button onClick={() => setIsCreating(true)} className="gap-2">
+            <Plus size={18}/> Agregar Nuevo Proyecto
+          </Button>
+        </div>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -32,7 +57,10 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
            </div>
          )}
          {projects.map(p => (
-           <div key={p.id} className="bg-white rounded-[2rem] border border-border overflow-hidden shadow-lg flex flex-col group relative">
+           <div key={p.id} onClick={() => toggleSelection(p.id)} className={`bg-white rounded-[2rem] border overflow-hidden shadow-lg flex flex-col group relative cursor-pointer transition-all ${selectedIds.has(p.id) ? 'ring-4 ring-primary border-primary' : 'border-border'}`}>
+              <div className="absolute top-4 left-4 z-20">
+                 <input type="checkbox" checked={selectedIds.has(p.id)} readOnly className="w-5 h-5 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer shadow-xl" />
+              </div>
               {/* Cover Image */}
               <div className="h-48 relative overflow-hidden bg-muted flex items-center justify-center">
                  {p.imageUrl ? (
@@ -42,7 +70,8 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
                  )}
                  <div className="absolute top-4 right-4 flex gap-2">
                     <button 
-                      onClick={async () => {
+                      onClick={async (e) => {
+                         e.stopPropagation();
                          const maxedOut = p.isPublished === 0 && projects.filter(x => x.isPublished).length >= 6;
                          if(maxedOut) { alert("Has superado el tope de 6 proyectos públicos fijado. Oculta otro primero."); return; }
                          await togglePublishProject(p.id, p.isPublished === 1);
@@ -73,7 +102,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
                         </div>
                       </div>
                     ) : (
-                      <button onClick={() => setDelTarget(p.id)} className="text-secondary/30 hover:text-red-500 transition-colors p-1"><Trash2 size={16}/></button>
+                      <button onClick={(e) => { e.stopPropagation(); setDelTarget(p.id); }} className="text-secondary/30 hover:text-red-500 transition-colors p-1"><Trash2 size={16}/></button>
                     )}
                  </div>
                  
@@ -179,7 +208,11 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
             </div>
           </div>
         ) : (
-          <form action={formAction} className="space-y-5" encType="multipart/form-data">
+          <form onSubmit={async (e) => {
+            e.preventDefault();
+            const fd = new FormData(e.currentTarget);
+            await formAction(fd);
+          }} className="space-y-5" encType="multipart/form-data">
            <div className="grid md:grid-cols-2 gap-4">
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider">Nombre del Proyecto</label>
@@ -193,7 +226,7 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
                 </div>
                 <div className="w-1/3">
                    <label className="text-xs font-bold uppercase tracking-wider">Unidad</label>
-                   <select name="powerUnit" className="w-full p-3 bg-muted rounded-xl outline-none"><option>kW</option><option>W</option><option>MW</option></select>
+                   <select name="powerUnit" className="w-full p-3 bg-muted rounded-xl outline-none"><option>kWp</option><option>kW</option><option>W</option><option>MW</option></select>
                 </div>
               </div>
 
@@ -215,6 +248,16 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
               <div>
                  <label className="text-xs font-bold uppercase tracking-wider">Ciudad / Municipio</label>
                  <input required name="city" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Bucaramanga..." />
+              </div>
+
+              <div>
+                 <label className="text-xs font-bold uppercase tracking-wider">% Ahorro en Factura (Ej: 90)</label>
+                 <input type="number" step="any" required name="reductionPercent" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="90" />
+              </div>
+
+              <div>
+                 <label className="text-xs font-bold uppercase tracking-wider">Retorno Inversión (Ej: 4-5 años)</label>
+                 <input required name="roiRange" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="3.5 - 4.5 años" />
               </div>
 
               <div>

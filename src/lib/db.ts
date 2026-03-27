@@ -89,8 +89,15 @@ export async function getDB() {
     // Migrar columna gallery en projects si no existe
     const projCols = await db.all("PRAGMA table_info(projects)");
     const projColNames = projCols.map((c: any) => c.name);
+    
     if (!projColNames.includes('gallery')) {
       await db.exec("ALTER TABLE projects ADD COLUMN gallery TEXT DEFAULT '[]';");
+    }
+    if (!projColNames.includes('reductionPercent')) {
+      await db.exec("ALTER TABLE projects ADD COLUMN reductionPercent REAL DEFAULT 0;");
+    }
+    if (!projColNames.includes('roiRange')) {
+      await db.exec("ALTER TABLE projects ADD COLUMN roiRange TEXT DEFAULT '';");
     }
 
     const keys = await db.all('SELECT * FROM api_keys');
