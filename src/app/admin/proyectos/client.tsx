@@ -3,9 +3,9 @@
 import * as React from "react";
 import { FolderKanban, Plus, Image as ImageIcon, Trash2, Eye, EyeOff, TreeDeciduous, Banknote, X, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { togglePublishProject, deleteProject, createProject } from "./actions";
+import { togglePublishProject, deleteProject } from "./actions";
 
-export default function ProjectsClient({ initialProjects }: { initialProjects: any[] }) {
+        export default function ProjectsClient({ initialProjects }: { initialProjects: any[] }) {
   const [projects, setProjects] = React.useState(initialProjects);
   const [isCreating, setIsCreating] = React.useState(false);
   const [delTarget, setDelTarget] = React.useState<number | null>(null);
@@ -155,7 +155,8 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
     setPreviews(prev => prev.filter((_, i) => i !== index));
   };
 
-  const formAction = async (formData: FormData) => {
+  const formAction = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setIsSubmitting(true);
     try {
       if (selectedFiles.length === 0) {
@@ -164,13 +165,22 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
          return;
       }
 
-      // Eliminar el campo file nativo y reemplazar con nuestros archivos controlados
+      const formData = new FormData(e.currentTarget);
       formData.delete("files");
       selectedFiles.forEach(f => formData.append("files", f));
 
-      const res = await createProject(formData);
+      const response = await fetch("/api/projects", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await response.json();
+      
       if (!res.success) alert(res.error);
-      else onClose();
+      else {
+        window.location.reload(); // Recargar visualmente los datos
+        onClose();
+      }
     } catch (err: any) {
       alert("Error al procesar: " + (err.message || "Verifica tu conexión."));
     } finally {
@@ -184,7 +194,7 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
         <h2 className="text-3xl font-black tracking-tight mb-2">Ingresar Obra Ejecutada</h2>
         <p className="text-secondary/60 text-sm mb-6">Las fotos se comprimen automáticamente a calidad web (1920px, JPEG 80%).</p>
 
-        <form action={formAction} className="space-y-5" encType="multipart/form-data">
+        <form onSubmit={formAction} className="space-y-5" encType="multipart/form-data">
            <div className="grid md:grid-cols-2 gap-4">
               <div className="col-span-2">
                  <label className="text-xs font-bold uppercase tracking-wider">Nombre del Proyecto</label>
