@@ -59,7 +59,7 @@ export default function Home() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/20 border border-primary/30 backdrop-blur-md text-accent text-sm font-semibold tracking-wider">
               <Zap size={16} className="text-accent" />
-              Líderes en Transición Energética
+              Líderes en Paneles Solares e Inteligencia Artificial en Colombia
             </div>
             
             <h1 className="text-5xl md:text-7xl font-black tracking-tighter leading-[1.05]">
@@ -67,7 +67,7 @@ export default function Home() {
             </h1>
             
             <p className="text-xl md:text-2xl text-white/80 font-light max-w-2xl leading-relaxed">
-              Soluciones fotovoltaicas seguras y rentables para hogares, comercio e industria con el respaldo de ingeniería garantizada.
+              La principal empresa de diseño e instalación de soluciones fotovoltaicas en la Costa Caribe y Colombia. Ahorra inteligentemente integrando nuestras herramientas de IA en tu hogar, comercio o industria petrolera.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 pt-4">

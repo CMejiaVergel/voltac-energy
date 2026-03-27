@@ -16,13 +16,18 @@ export default async function ProyectosPage() {
   const allProjects = await db.all("SELECT * FROM projects");
   const publishedProjects = allProjects.filter((p: any) => p.isPublished === 1).sort((a: any, b: any) => b.id - a.id);
   
-  const mwpAcumulado = allProjects.reduce((acc: number, p: any) => acc + (p.powerUnit === 'MW' ? p.power : p.powerUnit === 'W' ? p.power/1000000 : p.power/1000), 0).toFixed(2);
+  const rawMwp = allProjects.reduce((acc: number, p: any) => acc + (p.powerUnit === 'MW' ? p.power : p.powerUnit === 'W' ? p.power/1000000 : p.power/1000), 0);
+  const mwpAcumulado = rawMwp < 1 ? (rawMwp * 1000).toFixed(0) : rawMwp.toFixed(2);
+  const energyUnit = rawMwp < 1 ? 'kWp' : 'MWp';
+  
   const co2Acumulado = allProjects.reduce((acc: number, p: any) => acc + parseFloat(p.co2calc || 0), 0).toFixed(0);
   const ahorroAcumulado = allProjects.reduce((acc: number, p: any) => acc + parseFloat(p.savingsCalc || 0), 0);
 
-  const COP_Ahorro = ahorroAcumulado > 1000000000 
-    ? (ahorroAcumulado/1000000000).toFixed(1) + 'B' 
-    : ahorroAcumulado > 1000000 ? (ahorroAcumulado/1000000).toFixed(1) + 'M' : ahorroAcumulado.toLocaleString();
+  const COP_Ahorro = ahorroAcumulado >= 1000000000000
+    ? (ahorroAcumulado/1000000000000).toFixed(1) + ' Billones'
+    : ahorroAcumulado >= 1000000 
+      ? (ahorroAcumulado/1000000).toFixed(1) + ' Millones' 
+      : ahorroAcumulado.toLocaleString();
 
   return (
     <div className="pt-24 pb-20 bg-background min-h-screen">
@@ -47,16 +52,16 @@ export default async function ProyectosPage() {
               <p className="text-white/60 font-medium">Proyectos Finalizados</p>
             </div>
             <div className="space-y-2 py-4">
-              <p className="text-5xl font-black tracking-tighter text-primary tabular-nums">{mwpAcumulado}<span className="text-2xl">MWp</span></p>
-              <p className="text-white/60 font-medium">Potencia Instalada</p>
+              <p className="text-5xl font-black tracking-tighter text-primary tabular-nums">{mwpAcumulado}<span className="text-2xl">{energyUnit}</span></p>
+              <p className="text-white/60 font-medium text-sm">Potencia Instalada</p>
             </div>
             <div className="space-y-2 py-4 hidden md:block">
               <p className="text-5xl font-black tracking-tighter text-primary tabular-nums">{co2Acumulado}<span className="text-2xl">t</span></p>
-              <p className="text-white/60 font-medium">CO₂ Evitado Anual</p>
+              <p className="text-white/60 font-medium text-sm leading-tight">Toneladas de CO₂ eq reducidas anualmente</p>
             </div>
             <div className="space-y-2 py-4 hidden md:block">
               <p className="text-5xl font-black tracking-tighter tabular-nums text-primary"><span className="text-2xl">$</span>{COP_Ahorro}</p>
-              <p className="text-white/60 font-medium">Ahorros en COP Aproximado</p>
+              <p className="text-white/60 font-medium text-sm leading-tight">Ahorro en COP proyectado clientes</p>
             </div>
           </div>
         </section>
