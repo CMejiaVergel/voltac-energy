@@ -4,6 +4,27 @@ import { getDB } from "@/lib/db";
 import { revalidatePath } from "next/cache";
 import { writeFile, mkdir } from "fs/promises";
 import { join } from "path";
+import sharp from "sharp";
+
+// ── Compresión automática de imágenes ──
+async function compressAndSave(file: File): Promise<string> {
+  const bytes = await file.arrayBuffer();
+  const inputBuffer = Buffer.from(bytes);
+  const uploadDir = join(process.cwd(), "uploads", "projects");
+  await mkdir(uploadDir, { recursive: true });
+
+  const uniqueName = Date.now() + "-" + file.name.replace(/[^a-zA-Z0-9.-]/g, "_").replace(/\.(png|bmp|tiff?)$/i, ".jpg");
+  const finalName = uniqueName.endsWith(".jpg") || uniqueName.endsWith(".jpeg") ? uniqueName : uniqueName.replace(/\.[^.]+$/, ".jpg");
+
+  // Reescalar a max 1920px de ancho, calidad 80%, formato JPEG progresivo
+  const compressed = await sharp(inputBuffer)
+    .resize({ width: 1920, withoutEnlargement: true })
+    .jpeg({ quality: 80, progressive: true })
+    .toBuffer();
+
+  await writeFile(join(uploadDir, finalName), compressed);
+  return "/api/uploads/projects/" + finalName;
+}
 
 export async function togglePublishProject(id: number, currentPublished: boolean) {
   const db = await getDB();
@@ -45,39 +66,35 @@ export async function createProject(formData: FormData) {
     const city = formData.get("city") as string;
     const department = formData.get("department") as string;
     const kwValue = parseFloat(formData.get("kwValue") as string);
-    const file = formData.get("file") as File | null;
 
-    let imageUrl = null;
-    if (file && file.size > 0) {
-      const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const uploadDir = join(process.cwd(), "uploads", "projects");
-      await mkdir(uploadDir, { recursive: true });
-      const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-      const uniqueName = Date.now() + "-" + safeName;
-      await writeFile(join(uploadDir, uniqueName), buffer);
-      imageUrl = "/api/uploads/projects/" + uniqueName;
+    // Procesar todas las imágenes subidas
+    const files = formData.getAll("files") as File[];
+    const imageUrls: string[] = [];
+
+    for (const file of files) {
+      if (file && file.size > 0) {
+        const url = await compressAndSave(file);
+        imageUrls.push(url);
+      }
     }
 
+    // La primera imagen es la portada principal
+    const imageUrl = imageUrls[0] || null;
+    // Todas las imágenes como JSON array
+    const galleryJson = JSON.stringify(imageUrls);
+
     // Calcular formulas automáticas
-    // 1. Estandarizar potencia en kW
     const capacityKw = powerUnit === "W" ? power / 1000 : powerUnit === "MW" ? power * 1000 : power;
-    
-    // 2. Generación anual estimada (Base: 4.5 Horas Sol Pico Colombia * 365 días = 1642.5 kWh/año por kW)
     const annualGenerationKWh = capacityKw * 1642.5;
-
-    // 3. Impacto de Huella CO2 Evitado al año (Factor Colombia grid: ~0.164 ton CO2e por MWh -> 0.000164 por kWh)
     const co2calc = annualGenerationKWh * 0.000164;
-
-    // 4. Ahorro Económico (Multiplicando Kw x valorKw x Horas de generacion anual)
     const savingsCalc = annualGenerationKWh * kwValue;
 
     await db.run(
       `INSERT INTO projects (
         name, power, powerUnit, connectionType, status, dateExecuted, 
-        projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl]
+        projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl, gallery
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [name, power, powerUnit, connectionType, status, dateExecuted, projectType, city, department, kwValue, co2calc, savingsCalc, imageUrl, galleryJson]
     );
 
     revalidatePath("/admin/proyectos");

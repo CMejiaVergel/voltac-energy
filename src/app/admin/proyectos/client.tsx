@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { FolderKanban, Plus, Image as ImageIcon, Trash2, Eye, EyeOff, TreeDeciduous, Banknote } from "lucide-react";
+import { FolderKanban, Plus, Image as ImageIcon, Trash2, Eye, EyeOff, TreeDeciduous, Banknote, X, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { togglePublishProject, deleteProject, createProject } from "./actions";
 
@@ -31,7 +31,9 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
                <p className="text-xl">Sin proyectos. Construye el primero interactuando arriba.</p>
            </div>
          )}
-         {projects.map(p => (
+         {projects.map(p => {
+           const galleryArr = (() => { try { return JSON.parse(p.gallery || '[]'); } catch { return []; } })();
+           return (
            <div key={p.id} className="bg-white rounded-[2rem] border border-border overflow-hidden shadow-lg flex flex-col group relative">
               {/* Cover Image */}
               <div className="h-48 relative overflow-hidden bg-muted flex items-center justify-center">
@@ -54,6 +56,11 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
                        {p.isPublished ? <><Eye size={14}/> Público</> : <><EyeOff size={14}/> Oculto</>}
                     </button>
                  </div>
+                 {galleryArr.length > 1 && (
+                   <div className="absolute bottom-3 left-3 bg-secondary/70 backdrop-blur-md text-white text-[10px] px-2 py-1 rounded-full font-bold flex items-center gap-1">
+                     <Images size={12}/> {galleryArr.length} fotos
+                   </div>
+                 )}
               </div>
 
               {/* Data Content */}
@@ -120,7 +127,7 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
                  </div>
               </div>
            </div>
-         ))}
+         );})}
       </div>
 
       {isCreating && <ProjectCreateModal onClose={() => setIsCreating(false)} />}
@@ -130,28 +137,42 @@ export default function ProjectsClient({ initialProjects }: { initialProjects: a
 
 function ProjectCreateModal({ onClose }: { onClose: () => void }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [selectedFiles, setSelectedFiles] = React.useState<File[]>([]);
+  const [previews, setPreviews] = React.useState<string[]>([]);
+
+  const handleFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    setSelectedFiles(prev => [...prev, ...files]);
+    files.forEach(f => {
+      const reader = new FileReader();
+      reader.onloadend = () => setPreviews(prev => [...prev, reader.result as string]);
+      reader.readAsDataURL(f);
+    });
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles(prev => prev.filter((_, i) => i !== index));
+    setPreviews(prev => prev.filter((_, i) => i !== index));
+  };
 
   const formAction = async (formData: FormData) => {
     setIsSubmitting(true);
     try {
-      const file = formData.get("file") as File | null;
-      if (file && file.size > 20 * 1024 * 1024) {
-         alert("La imagen fotografica es demasiado pesada (" + (file.size / 1024 / 1024).toFixed(1) + "MB). Debe pesar debajo de 20MB.");
+      if (selectedFiles.length === 0) {
+         alert("Por favor selecciona al menos una fotografía del proyecto.");
          setIsSubmitting(false);
          return;
       }
 
-      if (!file || file.size === 0) {
-         alert("Por favor selecciona un archivo fotográfico funcional.");
-         setIsSubmitting(false);
-         return;
-      }
+      // Eliminar el campo file nativo y reemplazar con nuestros archivos controlados
+      formData.delete("files");
+      selectedFiles.forEach(f => formData.append("files", f));
 
       const res = await createProject(formData);
       if (!res.success) alert(res.error);
       else onClose();
     } catch (err: any) {
-      alert("Error al procesar: El servidor de nube cerró la conexión al colapsar el streaming.");
+      alert("Error al procesar: " + (err.message || "Verifica tu conexión."));
     } finally {
       setIsSubmitting(false);
     }
@@ -161,7 +182,7 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-secondary/80 backdrop-blur-sm animate-in fade-in">
       <div className="bg-background rounded-3xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl relative border border-border p-8 text-secondary">
         <h2 className="text-3xl font-black tracking-tight mb-2">Ingresar Obra Ejecutada</h2>
-        <p className="text-secondary/60 text-sm mb-6">El modelo calculará la data de carbono y variables económicas al crearse.</p>
+        <p className="text-secondary/60 text-sm mb-6">Las fotos se comprimen automáticamente a calidad web (1920px, JPEG 80%).</p>
 
         <form action={formAction} className="space-y-5" encType="multipart/form-data">
            <div className="grid md:grid-cols-2 gap-4">
@@ -216,15 +237,34 @@ function ProjectCreateModal({ onClose }: { onClose: () => void }) {
                  <input required name="dateExecuted" className="w-full p-3 bg-muted rounded-xl outline-none" placeholder="Septiembre 2025" />
               </div>
 
+              {/* Multi-file upload with preview */}
               <div className="col-span-2">
-                 <label className="text-xs font-bold uppercase tracking-wider text-primary">Fotografía Deslumbrante (Portada)</label>
-                 <input required name="file" type="file" accept="image/*" className="w-full p-3 bg-primary/5 rounded-xl border border-primary/20 outline-none text-sm text-secondary/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-primary file:text-secondary hover:file:bg-primary/80" />
+                 <label className="text-xs font-bold uppercase tracking-wider text-primary">Fotografías del Proyecto (Múltiples)</label>
+                 <p className="text-[10px] text-secondary/50 mb-2">La primera imagen será la portada. Se comprimen automáticamente con IA.</p>
+                 
+                 <label className="cursor-pointer flex flex-col items-center justify-center w-full h-24 border-2 border-primary/30 border-dashed rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors mb-3">
+                    <Plus className="text-primary mb-1" size={24}/>
+                    <span className="text-xs font-bold text-primary">Agregar Fotos (Drone, Instalación, Detalle...)</span>
+                    <input type="file" className="hidden" accept="image/*" multiple onChange={handleFilesChange} />
+                 </label>
+
+                 {previews.length > 0 && (
+                   <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
+                      {previews.map((src, i) => (
+                        <div key={i} className="relative group/thumb rounded-lg overflow-hidden border border-border aspect-square">
+                          <img src={src} alt={`preview-${i}`} className="w-full h-full object-cover" />
+                          {i === 0 && <div className="absolute top-0 left-0 bg-primary text-[8px] text-secondary font-black px-1.5 py-0.5 rounded-br-md">PORTADA</div>}
+                          <button type="button" onClick={() => removeFile(i)} className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full p-0.5 opacity-0 group-hover/thumb:opacity-100 transition-opacity"><X size={12}/></button>
+                        </div>
+                      ))}
+                   </div>
+                 )}
               </div>
            </div>
 
            <div className="flex gap-4 pt-4">
               <Button type="button" variant="ghost" onClick={onClose} className="flex-1">Cancelar</Button>
-              <Button type="submit" variant="default" className="flex-1 bg-secondary text-primary" disabled={isSubmitting}>{isSubmitting ? "Calculando..." : "Ingresar Proyecto"}</Button>
+              <Button type="submit" variant="default" className="flex-1 bg-secondary text-primary" disabled={isSubmitting}>{isSubmitting ? "Comprimiendo & Calculando..." : "Ingresar Proyecto"}</Button>
            </div>
         </form>
       </div>

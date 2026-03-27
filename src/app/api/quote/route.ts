@@ -27,7 +27,8 @@ export async function POST(req: Request) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
-      const uploadDir = join(process.cwd(), 'public', 'uploads');
+      // Guardar fuera de public/ para que funcione en producción post-build
+      const uploadDir = join(process.cwd(), 'uploads', 'quotes');
       await mkdir(uploadDir, { recursive: true });
       
       const safeName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
       const absolutePath = join(uploadDir, uniqueName);
       
       await writeFile(absolutePath, buffer);
-      relativeFilePath = '/uploads/' + uniqueName;
+      relativeFilePath = '/api/uploads/quotes/' + uniqueName;
     }
 
     const database = await getDB();

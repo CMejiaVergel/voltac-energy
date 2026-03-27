@@ -4,7 +4,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { FileUp, Calculator, Building2, CheckCircle2, ChevronRight } from "lucide-react";
+import { FileUp, Calculator, Building2, CheckCircle2, ChevronRight, X, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +39,7 @@ export default function CotizarPage() {
   const [activeTab, setActiveTab] = React.useState<"express" | "manual" | "detailed">("express");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [successModal, setSuccessModal] = React.useState(false);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
 
   const expressForm = useForm<z.infer<typeof expressSchema>>({
     resolver: zodResolver(expressSchema),
@@ -63,15 +64,15 @@ export default function CotizarPage() {
     formData.append("phone", data.phone);
     formData.append("email", data.email);
     
-    // Check if there is a file directly available (due to unstructured field `any` mapping)
-    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
-    if (fileInput?.files?.[0]) {
-      formData.append("file", fileInput.files[0]);
+    // Usar el archivo controlado del estado en vez del input DOM
+    if (selectedFile) {
+      formData.append("file", selectedFile);
     }
 
     try {
       await fetch("/api/quote", { method: "POST", body: formData });
       expressForm.reset();
+      setSelectedFile(null);
       setSuccessModal(true);
     } catch(e) { console.error(e); }
     setIsSubmitting(false);
@@ -186,14 +187,32 @@ export default function CotizarPage() {
                  </div>
 
                  <div className="space-y-2 pt-4">
-                   <label className="text-xs font-bold uppercase tracking-wider text-secondary">Sube tu factura (PDF, JPG, PNG)</label>
-                   <div className="flex items-center justify-center w-full">
-                      <label className="cursor-pointer flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-xl bg-muted/30 hover:bg-muted/50 hover:border-primary/50 transition-colors">
-                        <FileUp className="w-8 h-8 text-secondary/40 mb-2" />
-                        <span className="text-sm font-medium text-secondary/60">Haz clic para buscar o arrastra el archivo aquí</span>
-                        <input type="file" className="hidden" {...expressForm.register("file")} />
-                      </label>
-                   </div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-secondary">Sube tu factura (PDF, JPG, PNG)</label>
+                    <div className="flex items-center justify-center w-full">
+                       <label className="cursor-pointer flex flex-col items-center justify-center w-full h-32 border-2 border-border border-dashed rounded-xl bg-muted/30 hover:bg-muted/50 hover:border-primary/50 transition-colors">
+                         <FileUp className="w-8 h-8 text-secondary/40 mb-2" />
+                         <span className="text-sm font-medium text-secondary/60">Haz clic para buscar o arrastra el archivo aquí</span>
+                         <span className="text-xs text-secondary/40 mt-1">Máximo 20MB · PDF, JPG, PNG</span>
+                         <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,image/*,application/pdf" onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) setSelectedFile(f);
+                         }} />
+                       </label>
+                    </div>
+                    {selectedFile && (
+                      <div className="flex items-center gap-3 bg-primary/5 border border-primary/20 rounded-xl p-3 mt-2 animate-in slide-in-from-top-2">
+                         <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                           <File size={20} className="text-primary" />
+                         </div>
+                         <div className="flex-1 min-w-0">
+                           <p className="text-sm font-bold text-secondary truncate">{selectedFile.name}</p>
+                           <p className="text-xs text-secondary/50">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                         </div>
+                         <button type="button" onClick={() => setSelectedFile(null)} className="w-8 h-8 rounded-full bg-red-100 hover:bg-red-200 text-red-600 flex items-center justify-center transition-colors shrink-0">
+                           <X size={14}/>
+                         </button>
+                      </div>
+                    )}
                  </div>
 
                  <div className="pt-6">

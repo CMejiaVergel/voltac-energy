@@ -63,6 +63,7 @@ export async function getDB() {
         savingsCalc REAL NOT NULL,
         isPublished BOOLEAN DEFAULT 0,
         imageUrl TEXT,
+        gallery TEXT DEFAULT '[]',
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
@@ -83,6 +84,13 @@ export async function getDB() {
 
     for (const q of alterQueries) {
       await db.exec(q);
+    }
+
+    // Migrar columna gallery en projects si no existe
+    const projCols = await db.all("PRAGMA table_info(projects)");
+    const projColNames = projCols.map((c: any) => c.name);
+    if (!projColNames.includes('gallery')) {
+      await db.exec("ALTER TABLE projects ADD COLUMN gallery TEXT DEFAULT '[]';");
     }
 
     const keys = await db.all('SELECT * FROM api_keys');
