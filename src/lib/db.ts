@@ -74,6 +74,7 @@ export async function getDB() {
         cuerpo TEXT NOT NULL,
         imagen_portada TEXT,
         keywords TEXT DEFAULT '[]',
+        fuentes TEXT DEFAULT '',
         estado INTEGER DEFAULT 0,
         fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
         fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -111,6 +112,13 @@ export async function getDB() {
     }
     if (!projColNames.includes('roiRange')) {
       await db.exec("ALTER TABLE projects ADD COLUMN roiRange TEXT DEFAULT '';");
+    }
+
+    // Migrar news_entries
+    const newsCols = await db.all("PRAGMA table_info(news_entries)");
+    const newsColNames = newsCols.map((c: any) => c.name);
+    if (!newsColNames.includes('fuentes')) {
+      await db.exec("ALTER TABLE news_entries ADD COLUMN fuentes TEXT DEFAULT '';");
     }
 
     const keys = await db.all('SELECT * FROM api_keys');

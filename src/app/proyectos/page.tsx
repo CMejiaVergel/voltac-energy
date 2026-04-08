@@ -24,10 +24,10 @@ export default async function ProyectosPage() {
   const ahorroAcumulado = allProjects.reduce((acc: number, p: any) => acc + parseFloat(p.savingsCalc || 0), 0);
 
   const COP_Ahorro = ahorroAcumulado >= 1000000000000
-    ? (ahorroAcumulado/1000000000000).toFixed(1) + ' Billones'
+    ? { val: (ahorroAcumulado/1000000000000).toFixed(1), suf: 'Billones' }
     : ahorroAcumulado >= 1000000 
-      ? (ahorroAcumulado/1000000).toFixed(1) + ' Millones' 
-      : ahorroAcumulado.toLocaleString();
+      ? { val: (ahorroAcumulado/1000000).toFixed(1), suf: 'Millones' } 
+      : { val: ahorroAcumulado.toLocaleString(), suf: '' };
 
   return (
     <div className="pt-24 pb-20 bg-background min-h-screen">
@@ -56,11 +56,14 @@ export default async function ProyectosPage() {
               <p className="text-white/60 font-medium text-sm">Potencia Instalada</p>
             </div>
             <div className="space-y-2 py-4 hidden md:block">
-              <p className="text-5xl font-black tracking-tighter text-primary tabular-nums">{co2Acumulado}<span className="text-2xl">t</span></p>
+              <p className="text-5xl font-black tracking-tighter text-primary tabular-nums">{co2Acumulado}<span className="text-2xl ml-1">ton</span></p>
               <p className="text-white/60 font-medium text-sm leading-tight">Toneladas de CO₂ eq reducidas anualmente</p>
             </div>
             <div className="space-y-2 py-4 hidden md:block">
-              <p className="text-5xl font-black tracking-tighter tabular-nums text-primary"><span className="text-2xl">$</span>{COP_Ahorro}</p>
+              <p className="text-5xl font-black tracking-tighter tabular-nums text-primary">
+                 <span className="text-2xl">$</span>{COP_Ahorro.val}
+                 {COP_Ahorro.suf && <span className="text-xl ml-2 text-white/80">{COP_Ahorro.suf}</span>}
+              </p>
               <p className="text-white/60 font-medium text-sm leading-tight">Ahorro en COP proyectado clientes</p>
             </div>
           </div>
@@ -128,7 +131,7 @@ export default async function ProyectosPage() {
                            <div className="w-8 h-8 rounded-full bg-green-500/20 text-green-400 flex items-center justify-center"><TreeDeciduous size={16}/></div>
                            <div>
                              <p className="text-[10px] font-bold uppercase text-white/50">CO₂ Anual</p>
-                             <p className="font-black text-white text-sm">-{parseFloat(project.co2calc).toFixed(1)} tons</p>
+                             <p className="font-black text-white text-sm">-{parseFloat(project.co2calc).toFixed(1)} ton</p>
                            </div>
                         </div>
                         <div className="text-right">

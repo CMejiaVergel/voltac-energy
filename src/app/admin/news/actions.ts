@@ -35,6 +35,7 @@ export async function createNewsEntry(formData: FormData) {
     let slug = formData.get("slug") as string;
     const cuerpo = formData.get("cuerpo") as string;
     const keywords = formData.get("keywords") as string || "[]";
+    const fuentes = formData.get("fuentes") as string || "";
     const estado = parseInt(formData.get("estado") as string || "0");
     const file = formData.get("file") as File | null;
 
@@ -54,8 +55,8 @@ export async function createNewsEntry(formData: FormData) {
     }
 
     await db.run(
-      `INSERT INTO news_entries (titulo, slug, cuerpo, imagen_portada, keywords, estado) VALUES (?, ?, ?, ?, ?, ?)`,
-      [titulo, slug, cuerpo, imagen_portada, keywords, estado]
+      `INSERT INTO news_entries (titulo, slug, cuerpo, imagen_portada, keywords, fuentes, estado) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [titulo, slug, cuerpo, imagen_portada, keywords, fuentes, estado]
     );
 
     revalidatePath("/admin/news");
@@ -75,6 +76,7 @@ export async function updateNewsEntry(id: number, formData: FormData) {
     const slug = formData.get("slug") as string;
     const cuerpo = formData.get("cuerpo") as string;
     const keywords = formData.get("keywords") as string || "[]";
+    const fuentes = formData.get("fuentes") as string || "";
     const estado = parseInt(formData.get("estado") as string || "0");
     const file = formData.get("file") as File | null;
 
@@ -89,13 +91,13 @@ export async function updateNewsEntry(id: number, formData: FormData) {
 
     if (imagen_portada) {
       await db.run(
-        `UPDATE news_entries SET titulo = ?, slug = ?, cuerpo = ?, imagen_portada = ?, keywords = ?, estado = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?`,
-        [titulo, slug, cuerpo, imagen_portada, keywords, estado, id]
+        `UPDATE news_entries SET titulo = ?, slug = ?, cuerpo = ?, imagen_portada = ?, keywords = ?, fuentes = ?, estado = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?`,
+        [titulo, slug, cuerpo, imagen_portada, keywords, fuentes, estado, id]
       );
     } else {
       await db.run(
-        `UPDATE news_entries SET titulo = ?, slug = ?, cuerpo = ?, keywords = ?, estado = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?`,
-        [titulo, slug, cuerpo, keywords, estado, id]
+        `UPDATE news_entries SET titulo = ?, slug = ?, cuerpo = ?, keywords = ?, fuentes = ?, estado = ?, fecha_actualizacion = CURRENT_TIMESTAMP WHERE id = ?`,
+        [titulo, slug, cuerpo, keywords, fuentes, estado, id]
       );
     }
 

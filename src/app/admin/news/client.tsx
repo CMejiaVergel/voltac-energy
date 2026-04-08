@@ -159,6 +159,7 @@ function NewsModal({ onClose, editEntry, allTags }: { onClose: () => void, editE
   const [cuerpo, setCuerpo] = React.useState(editEntry?.cuerpo || "");
   const [keywords, setKeywords] = React.useState<string[]>(editEntry?.keywords ? JSON.parse(editEntry.keywords) : []);
   const [kwInput, setKwInput] = React.useState("");
+  const [fuentes, setFuentes] = React.useState(editEntry?.fuentes || "");
 
   const handleTitulo = (e: any) => {
      setTitulo(e.target.value);
@@ -188,6 +189,7 @@ function NewsModal({ onClose, editEntry, allTags }: { onClose: () => void, editE
        fd.append("slug", slug);
        fd.append("cuerpo", cuerpo);
        fd.append("keywords", JSON.stringify(keywords));
+       fd.append("fuentes", fuentes);
        fd.append("estado", estado.toString());
        
        const fileInput = document.getElementById('coverImage') as HTMLInputElement;
@@ -264,6 +266,16 @@ function NewsModal({ onClose, editEntry, allTags }: { onClose: () => void, editE
              <div className="space-y-2">
                 <label className="text-xs font-bold uppercase tracking-widest text-secondary/60">Cuerpo del artículo</label>
                 <RichTextEditor content={cuerpo} onChange={setCuerpo} />
+             </div>
+
+             <div className="space-y-2">
+                <label className="text-xs font-bold uppercase tracking-widest text-secondary/60">Fuentes (Opcional)</label>
+                <textarea 
+                  value={fuentes} 
+                  onChange={(e) => setFuentes(e.target.value)} 
+                  className="w-full p-3 rounded-xl bg-white border border-border outline-none focus:border-primary text-secondary text-sm min-h-[80px]" 
+                  placeholder="Ej: CNN en Español: https://cnn.com/nota, Wikipedia..." 
+                />
              </div>
           </div>
 
