@@ -57,17 +57,19 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
          {/* Gradient Overlay for Text Contrast */}
          <div className="absolute inset-0 z-0 bg-gradient-to-t from-secondary via-secondary/70 to-transparent" />
          
+         <div className="absolute top-32 left-4 md:left-8 z-20">
+             <Link href="/noticias" className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors font-bold text-xs md:text-sm tracking-widest uppercase bg-secondary/30 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
+                <ArrowLeft size={16}/> Volver a Noticias
+             </Link>
+         </div>
+         
          <div className="container mx-auto px-4 md:px-6 relative z-10 text-center max-w-4xl">
-            <Link href="/noticias" className="inline-flex items-center gap-2 text-white/50 hover:text-primary transition-colors mb-6 font-bold text-xs md:text-sm tracking-widest uppercase">
-               <ArrowLeft size={16}/> Volver a Noticias
-            </Link>
-
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1] mb-6 text-balance mx-auto">
+            <h1 className="text-3xl md:text-5xl lg:text-7xl font-black text-white tracking-tight leading-[1.1] mb-6 text-balance mx-auto">
                {article.titulo.length > 90 ? article.titulo.substring(0, 90) + "..." : article.titulo}
             </h1>
             
-            <div className="flex items-center justify-center gap-2 text-sm md:text-base font-bold tracking-widest text-primary uppercase">
-               <Calendar size={18}/>
+            <div className="flex items-center justify-center gap-3 text-sm md:text-base font-bold tracking-widest text-white uppercase">
+               <Calendar size={18} className="text-white/80"/>
                {new Date(article.fecha_publicacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
          </div>
@@ -86,7 +88,7 @@ export default async function NewsArticlePage({ params }: { params: Promise<{ sl
                />
                
                {/* Redes Sociales y Compartir */}
-               <ShareButtons title={article.titulo} slug={article.slug} />
+               <ShareButtons slug={article.slug} />
 
                {/* Etiquetas */}
                {article.keywords && JSON.parse(article.keywords).length > 0 && (

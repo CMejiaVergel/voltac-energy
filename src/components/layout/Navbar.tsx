@@ -23,6 +23,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const isNewsArticle = pathname.startsWith("/noticias/");
 
   if (pathname.startsWith("/admin")) {
     return null;
@@ -38,7 +39,7 @@ export function Navbar() {
   }, []);
 
   // Determine text colors based on scroll state and background context
-  const hasDarkBg = isHome && !scrolled;
+  const hasDarkBg = (isHome || isNewsArticle) && !scrolled;
   const isSolidNav = scrolled;
   
   const textColor = isSolidNav ? "text-white" : (hasDarkBg ? "text-white" : "text-secondary");
