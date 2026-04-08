@@ -7,7 +7,7 @@ import { createNewsEntry, updateNewsEntry, deleteNewsEntry, toggleNewsStatus, bu
 import { RichTextEditor } from "./RichTextEditor";
 import Image from "next/image";
 
-export default function NewsClient({ initialEntries }: { initialEntries: any[] }) {
+export default function NewsClient({ initialEntries, allTags }: { initialEntries: any[], allTags: string[] }) {
   const [entries, setEntries] = React.useState(initialEntries);
   const [modalTarget, setModalTarget] = React.useState<any | 'new' | null>(null);
   const [delTarget, setDelTarget] = React.useState<number | null>(null);
@@ -128,7 +128,7 @@ export default function NewsClient({ initialEntries }: { initialEntries: any[] }
                          </div>
                        ) : (
                          <div className="flex gap-2">
-                           <button onClick={() => toggleNewsStatus(e.id, e.estado)} className="p-1.5 bg-muted rounded hover:bg-secondary/10 transition-colors" title="Ver/Ocultar">
+                           <button onClick={async () => { await toggleNewsStatus(e.id, e.estado); window.location.reload(); }} className="p-1.5 bg-muted rounded hover:bg-secondary/10 transition-colors" title="Ver/Ocultar">
                               {e.estado === 1 ? <Eye size={16}/> : <EyeOff size={16} className="text-secondary/40"/>}
                            </button>
                            <button onClick={() => setModalTarget(e)} className="p-1.5 bg-muted rounded hover:bg-secondary/10 transition-colors" title="Editar">
@@ -147,12 +147,12 @@ export default function NewsClient({ initialEntries }: { initialEntries: any[] }
          </table>
       </div>
 
-      {modalTarget && <NewsModal editEntry={modalTarget === 'new' ? null : modalTarget} onClose={() => setModalTarget(null)} />}
+      {modalTarget && <NewsModal editEntry={modalTarget === 'new' ? null : modalTarget} onClose={() => setModalTarget(null)} allTags={allTags} />}
     </div>
   );
 }
 
-function NewsModal({ onClose, editEntry }: { onClose: () => void, editEntry?: any }) {
+function NewsModal({ onClose, editEntry, allTags }: { onClose: () => void, editEntry?: any, allTags: string[] }) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [titulo, setTitulo] = React.useState(editEntry?.titulo || "");
   const [slug, setSlug] = React.useState(editEntry?.slug || "");
@@ -224,10 +224,29 @@ function NewsModal({ onClose, editEntry }: { onClose: () => void, editEntry?: an
                     <input value={slug} onChange={(e)=>setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,''))} className="w-full p-2.5 rounded-lg bg-muted text-sm border-none outline-none font-mono text-secondary/70 focus:ring-1 ring-primary" placeholder="maravillas-fotovoltaicas" />
                  </div>
                  <div>
-                    <label className="text-xs font-bold uppercase tracking-widest text-secondary/60">Etiquetas SEO (Keywords)</label>
-                    <input value={kwInput} onChange={(e)=>setKwInput(e.target.value)} onKeyDown={addKw} className="w-full p-2.5 rounded-lg bg-white border border-border outline-none text-sm mb-2" placeholder="Escribe y presiona Enter..." />
+                    <label className="text-xs font-bold uppercase tracking-widest text-secondary/60">Etiquetas / Categorías</label>
+                    <div className="flex gap-2 mb-2">
+                       <select 
+                         className="flex-1 p-2.5 rounded-lg bg-white border border-border outline-none text-sm"
+                         onChange={(e) => {
+                            if (e.target.value === 'ADD_NEW') {
+                               const newTag = window.prompt("Nueva Etiqueta:");
+                               if (newTag?.trim() && !keywords.includes(newTag.trim())) {
+                                 setKeywords([...keywords, newTag.trim()]);
+                               }
+                            } else if (e.target.value && !keywords.includes(e.target.value)) {
+                               setKeywords([...keywords, e.target.value]);
+                            }
+                            e.target.value = '';
+                         }}
+                       >
+                         <option value="">Seleccionar etiqueta...</option>
+                         {allTags.map(t => <option key={t} value={t}>{t}</option>)}
+                         <option value="ADD_NEW" className="font-bold text-primary">+ Agregar Nueva...</option>
+                       </select>
+                    </div>
                     <div className="flex flex-wrap gap-1">
-                      {keywords.map(k => <span key={k} className="bg-primary/20 text-secondary text-xs px-2 py-1 rounded-full flex gap-1 items-center">{k} <button onClick={()=>removeKw(k)} className="hover:text-red-500 font-bold ml-1 text-[10px]">X</button></span>)}
+                      {keywords.map(k => <span key={k} className="bg-primary/20 text-secondary text-xs px-2 py-1 rounded-full flex gap-1 items-center">{k} <button type="button" onClick={()=>removeKw(k)} className="hover:text-red-500 font-bold ml-1 text-[10px]">X</button></span>)}
                     </div>
                  </div>
                </div>
