@@ -66,6 +66,19 @@ export async function getDB() {
         gallery TEXT DEFAULT '[]',
         createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
       );
+
+      CREATE TABLE IF NOT EXISTS news_entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        titulo TEXT NOT NULL,
+        slug TEXT UNIQUE NOT NULL,
+        cuerpo TEXT NOT NULL,
+        imagen_portada TEXT,
+        keywords TEXT DEFAULT '[]',
+        estado INTEGER DEFAULT 0,
+        fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+        fecha_actualizacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+        fecha_publicacion DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     const columns = await db.all("PRAGMA table_info(quotes)");

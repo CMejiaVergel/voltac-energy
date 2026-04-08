@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 import { ArrowRight, Zap, Target, ShieldCheck, Leaf, PieChart, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { getPublishedProjects } from "./admin/proyectos/actions";
+import { getLatestNews } from "./admin/news/actions";
+import { Calendar } from "lucide-react";
 
 const METRICS = [
   { label: "Instalación", value: "< 7 días", suffix: "" },
@@ -28,9 +30,11 @@ const SERVICES = [
 
 export default function Home() {
   const [publishedProjects, setPublishedProjects] = React.useState<any[]>([]);
+  const [latestNews, setLatestNews] = React.useState<any[]>([]);
 
   React.useEffect(() => {
     getPublishedProjects().then(data => setPublishedProjects(data));
+    getLatestNews().then(data => setLatestNews(data));
   }, []);
 
   return (
@@ -233,6 +237,62 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* 4.5 Noticias y Recursos */}
+      {latestNews.length > 0 && (
+        <section className="py-24 bg-white text-secondary">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-16">
+              <div className="max-w-2xl">
+                <h2 className="text-4xl md:text-5xl font-black tracking-tight mb-4">
+                  Noticias y <span className="text-primary">Recursos.</span>
+                </h2>
+                <p className="text-lg text-secondary/70 font-light">
+                  Aprende cómo la Inteligencia Artificial optimiza sistemas fotoeléctricos.
+                </p>
+              </div>
+              <Link href="/noticias" className="font-semibold text-primary hover:text-accent uppercase tracking-wider inline-flex items-center gap-2 group transition-colors">
+                Ver todas las noticias <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {latestNews.map((news: any) => {
+                const plainText = news.cuerpo.replace(/<[^>]+>/g, '');
+                const excerpt = plainText.substring(0, 150) + (plainText.length > 150 ? '...' : '');
+                return (
+                  <Link key={news.id} href={`/noticias/${news.slug}`} className="group rounded-[2rem] overflow-hidden bg-muted/20 border border-border shadow-sm hover:shadow-2xl transition-all flex flex-col h-full">
+                    <div className="relative h-48 w-full bg-muted overflow-hidden">
+                      {news.imagen_portada ? (
+                        <Image src={news.imagen_portada} alt={news.titulo} fill className="object-cover transition-transform duration-700 group-hover:scale-105" />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-secondary/5">
+                          <span className="text-secondary/20 font-black text-4xl">VOLTAC</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-6 flex flex-col flex-1">
+                      <div className="flex items-center gap-2 mb-3 text-xs font-bold uppercase tracking-widest text-primary">
+                        <Calendar size={14}/>
+                        {new Date(news.fecha_publicacion).toLocaleDateString('es-CO', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </div>
+                      <h3 className="text-xl font-black text-secondary group-hover:text-primary transition-colors leading-tight mb-3">
+                        {news.titulo}
+                      </h3>
+                      <p className="text-secondary/70 text-sm leading-relaxed mb-4 font-light flex-1">
+                        {excerpt}
+                      </p>
+                      <div className="flex items-center text-primary font-bold text-sm gap-2 uppercase tracking-widest group-hover:gap-4 transition-all mt-auto">
+                        Leer artículo <ArrowRight size={16}/>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 5. Final CTA */}
       <section className="py-32 bg-primary relative overflow-hidden">
