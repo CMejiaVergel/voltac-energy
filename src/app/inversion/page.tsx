@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Sun, FileCheck2, HandCoins } from "lucide-react";
+import { InversionForm } from "./InversionForm";
 
 export const metadata = {
   title: "Inversión Solar | Voltac Energy",
@@ -38,7 +39,7 @@ export default function InversionPage() {
               {[
                  { icon: <Sun size={28}/>, text: "Identificamos predios con alto potencial de radiación e interconexión eléctrica." },
                  { icon: <FileCheck2 size={28}/>, text: "Realizamos los estudios técnicos, legales y de conexión al SIN (Sistema Interconectado)." },
-                 { icon: <HandCoins size={28}/>, text: "Estructuramos el PPA (Power Purchase Agreement) e inyectamos energía a la red." }
+                 { icon: <HandCoins size={28}/>, text: "Si el predio cumple los requisitos se paga alquiler entre 4 a 8 millones de pesos por hectárea" }
               ].map((step, i) => (
                 <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors backdrop-blur-sm">
                   <div className="text-accent shrink-0 pt-1">{step.icon}</div>
@@ -57,7 +58,7 @@ export default function InversionPage() {
             <ul className="space-y-4 mb-8">
               <li className="flex items-center gap-3 font-medium text-secondary/80">
                 <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
-                Área mínima de 1 Hectárea plana
+                Área mínima de 2 Hectáreas planas
               </li>
               <li className="flex items-center gap-3 font-medium text-secondary/80">
                 <span className="w-2 h-2 rounded-full bg-accent shrink-0" />
@@ -90,39 +91,7 @@ export default function InversionPage() {
              </div>
              
              {/* Note: This normally hooks up to a DB or Zod form in future, simulated UI for PRD layout here */}
-             <form className="space-y-4 text-left">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-secondary uppercase tracking-wider">Nombre Completo</label>
-                    <input type="text" className="w-full bg-white border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Ej. Juan Pérez" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-secondary uppercase tracking-wider">Celular / WhatsApp</label>
-                    <input type="tel" className="w-full bg-white border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="300 000 0000" />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-secondary uppercase tracking-wider">Área del Lote (Hectáreas)</label>
-                    <input type="number" className="w-full bg-white border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Ej. 1.5" />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold text-secondary uppercase tracking-wider">Ubicación (Municipio)</label>
-                    <input type="text" className="w-full bg-white border border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all" placeholder="Ej. Turbaco, Bolívar" />
-                  </div>
-                </div>
-
-                <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <label className="flex items-center gap-3 text-xs text-secondary/60 cursor-pointer max-w-sm">
-                    <input type="checkbox" className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20 accent-primary" />
-                    <span>Acepto la Política de Tratamiento de Datos (Ley 1581/2012) para que Voltac me contacte.</span>
-                  </label>
-                  <Button type="button" variant="default" size="lg" className="w-full sm:w-auto h-12 uppercase">
-                    Enviar Solicitud
-                  </Button>
-                </div>
-             </form>
+             <InversionForm />
           </div>
         </section>
 

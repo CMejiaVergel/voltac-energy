@@ -62,7 +62,7 @@ export default async function ProyectosPage() {
             <div className="space-y-2 py-4 hidden md:block">
               <p className="text-5xl font-black tracking-tighter tabular-nums text-primary">
                  <span className="text-2xl">$</span>{COP_Ahorro.val}
-                 {COP_Ahorro.suf && <span className="text-xl ml-2 text-white/80">{COP_Ahorro.suf}</span>}
+                 {COP_Ahorro.suf && <span className="text-xl ml-2 text-primary">{COP_Ahorro.suf}</span>}
               </p>
               <p className="text-white/60 font-medium text-sm leading-tight">Ahorro en COP proyectado clientes</p>
             </div>
