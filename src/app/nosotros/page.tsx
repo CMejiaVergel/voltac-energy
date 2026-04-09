@@ -35,7 +35,7 @@ export default function NosotrosPage() {
           </div>
           <div className="lg:w-1/2 relative h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl group border border-border">
             <Image
-              src="/Ejemplo%202.jpg"
+              src="/certifying_us.png"
               fill
               alt="Equipo Voltac Energy"
               className="object-cover transition-transform duration-700 group-hover:scale-105"

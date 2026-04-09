@@ -231,7 +231,7 @@ export default function Home() {
               </ul>
             </div>
             <div className="relative h-[600px] rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-              <Image src="/Ejemplo%202.jpg" alt="Instalación técnica" fill className="object-cover" />
+              <Image src="/Working_Home.png" alt="Instalación técnica" fill className="object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-secondary via-transparent to-transparent" />
             </div>
           </div>
